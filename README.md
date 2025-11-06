@@ -1,2 +1,2 @@
 # timesplutic.github.io
-Junhyeok Kim's Website
+Junhyeok Kim's Website: https://timesplutic.github.io/

@@ -9,6 +9,7 @@
   --accent-soft: rgba(255, 91, 58, 0.12);
   --accent-2: #3a6bff;
   --accent-2-soft: rgba(58, 107, 255, 0.12);
+  --accent-3: #11a37f;
   --mark: rgba(255, 91, 58, 0.18);
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
   --shadow-hover: 0 2px 4px rgba(20, 20, 30, 0.06), 0 16px 40px rgba(20, 20, 30, 0.12);
@@ -34,6 +35,7 @@
     --accent-soft: rgba(255, 122, 92, 0.15);
     --accent-2: #7c9dff;
     --accent-2-soft: rgba(124, 157, 255, 0.15);
+    --accent-3: #3ccf9f;
     --mark: rgba(255, 122, 92, 0.25);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -52,6 +54,7 @@
   --accent-soft: rgba(255, 122, 92, 0.15);
   --accent-2: #7c9dff;
   --accent-2-soft: rgba(124, 157, 255, 0.15);
+  --accent-3: #3ccf9f;
   --mark: rgba(255, 122, 92, 0.25);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -543,11 +546,19 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .drum-cell:nth-child(4n+2) { background: rgba(var(--cell), 0.12); }
 .drum-cell:hover { box-shadow: inset 0 0 0 2px var(--row-color); }
 .drum-cell.on { background: var(--row-color); }
+.drum-cell {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+}
 .drum-cell.now { box-shadow: inset 0 0 0 2px rgba(var(--cell), 0.35); }
 .drum-cell.on.now { transform: scale(1.18); box-shadow: 0 0 12px var(--row-color); }
 
 .drum-row:nth-child(odd) { --row-color: var(--accent); }
 .drum-row:nth-child(even) { --row-color: var(--accent-2); }
+.drum-row.is-melodic { --row-color: var(--accent-3); }
 
 /* ---------- Footer ---------- */
 .footer {
@@ -592,7 +603,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   .drum-bpm { order: 1; flex-basis: 100%; }
   .drum-row { grid-template-columns: 28px repeat(16, minmax(0, 1fr)); gap: 2px; }
   .drum-label { font-size: 10px; }
-  .drum-cell { border-radius: 3px; }
+  .drum-cell { border-radius: 3px; font-size: 8px; }
   .footer { padding: 24px 16px 40px; }
 }
 

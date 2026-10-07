@@ -163,14 +163,27 @@
     { name: 'Kick', short: 'KCK', play: kick },
     { name: 'Snare', short: 'SNR', play: snare },
     { name: 'Hi-hat', short: 'HAT', play: hat },
-    { name: 'Clap', short: 'CLP', play: clap }
+    { name: 'Rim', short: 'RIM', play: rim },
+    { name: 'Cowbell', short: 'COW', play: cowbell },
+    { name: 'Bass', short: 'BAS', play: bass, melodic: true }
   ];
-  // Default groove: a simple backbeat
+  var BASS = 5; // index of the bass track
+  // Bass cells cycle through a C minor pentatonic scale, then back to off
+  var NOTES = [
+    { name: 'C', freq: 65.41 },
+    { name: 'E\u266d', freq: 77.78 },
+    { name: 'F', freq: 87.31 },
+    { name: 'G', freq: 98.0 },
+    { name: 'B\u266d', freq: 116.54 }
+  ];
+  // Default groove: a simple backbeat. Bass values are 1-based note indices.
   var pattern = [
     [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
     [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
     [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,1],
-    [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+    [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+    [1,0,0,1, 0,0,2,0, 1,0,1,0, 3,0,4,0]
   ];
 
   var gridEl = document.getElementById('drum-grid');
@@ -183,7 +196,7 @@
 
   tracks.forEach(function (tr, r) {
     var row = document.createElement('div');
-    row.className = 'drum-row';
+    row.className = 'drum-row' + (tr.melodic ? ' is-melodic' : '');
     row.setAttribute('role', 'row');
 
     var label = document.createElement('button');
@@ -191,7 +204,7 @@
     label.type = 'button';
     label.title = 'Play ' + tr.name;
     label.textContent = narrow.matches ? tr.short : tr.name;
-    label.addEventListener('click', function () { ensureCtx(); tr.play(ctx.currentTime); flash(label); });
+    label.addEventListener('click', function () { ensureCtx(); tr.play(ctx.currentTime, 1); flash(label); });
     row.appendChild(label);
     labels.push(label);
 
@@ -203,9 +216,10 @@
       cell.setAttribute('aria-label', tr.name + ' step ' + (c + 1));
       (function (r, c, cell) {
         cell.addEventListener('click', function () {
-          pattern[r][c] = pattern[r][c] ? 0 : 1;
+          var max = tr.melodic ? NOTES.length : 1;
+          pattern[r][c] = (pattern[r][c] + 1) % (max + 1);
           render(r, c);
-          if (pattern[r][c] && !playing) { ensureCtx(); tr.play(ctx.currentTime); }
+          if (pattern[r][c] && !playing) { ensureCtx(); tr.play(ctx.currentTime, pattern[r][c]); }
         });
       })(r, c, cell);
       row.appendChild(cell);
@@ -219,9 +233,14 @@
   });
 
   function render(r, c) {
-    var on = !!pattern[r][c];
-    cells[r][c].classList.toggle('on', on);
-    cells[r][c].setAttribute('aria-pressed', on);
+    var v = pattern[r][c];
+    var cell = cells[r][c];
+    cell.classList.toggle('on', !!v);
+    cell.setAttribute('aria-pressed', !!v);
+    if (tracks[r].melodic) {
+      cell.textContent = v ? NOTES[v - 1].name : '';
+      cell.setAttribute('aria-label', tracks[r].name + ' step ' + (c + 1) + (v ? ', ' + NOTES[v - 1].name : ''));
+    }
   }
   function renderAll() {
     for (var r = 0; r < tracks.length; r++) for (var c = 0; c < STEPS; c++) render(r, c);
@@ -293,22 +312,60 @@
     noise(t, 0.08).connect(f);
     f.connect(env(t, 0.3, 0.05));
   }
-  function clap(t) {
+  function rim(t) {
+    var o = ctx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(1750, t);
+    o.connect(env(t, 0.5, 0.03));
+    o.start(t);
+    o.stop(t + 0.05);
     var f = ctx.createBiquadFilter();
     f.type = 'bandpass';
-    f.frequency.value = 1600;
-    f.Q.value = 0.8;
+    f.frequency.value = 3000;
+    noise(t, 0.03).connect(f);
+    f.connect(env(t, 0.6, 0.025));
+  }
+  // Classic 808 cowbell: two detuned squares through a bandpass
+  function cowbell(t) {
+    var f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 800;
+    f.Q.value = 1.5;
     var g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    [0, 0.012, 0.024].forEach(function (o) {
-      g.gain.setValueAtTime(0.8, t + o);
-      g.gain.exponentialRampToValueAtTime(0.05, t + o + 0.01);
-    });
-    g.gain.setValueAtTime(0.6, t + 0.036);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-    noise(t, 0.25).connect(f);
+    g.gain.setValueAtTime(0.5, t);
+    g.gain.exponentialRampToValueAtTime(0.15, t + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
     f.connect(g);
     g.connect(master);
+    [540, 800].forEach(function (hz) {
+      var o = ctx.createOscillator();
+      o.type = 'square';
+      o.frequency.value = hz;
+      o.connect(f);
+      o.start(t);
+      o.stop(t + 0.4);
+    });
+  }
+  function bass(t, v) {
+    var note = NOTES[(v || 1) - 1];
+    var len = Math.min(0.35, 60 / bpm() / 2);
+    var o = ctx.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(note.freq, t);
+    var f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.Q.value = 6;
+    f.frequency.setValueAtTime(1400, t);
+    f.frequency.exponentialRampToValueAtTime(180, t + len);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, t + len);
+    o.connect(f);
+    f.connect(g);
+    g.connect(master);
+    o.start(t);
+    o.stop(t + len + 0.02);
   }
 
   // ----- Scheduler (look-ahead) -----
@@ -317,7 +374,7 @@
 
   function schedule() {
     while (nextTime < ctx.currentTime + 0.12) {
-      for (var r = 0; r < tracks.length; r++) if (pattern[r][step]) tracks[r].play(nextTime);
+      for (var r = 0; r < tracks.length; r++) if (pattern[r][step]) tracks[r].play(nextTime, pattern[r][step]);
       queue.push({ step: step, time: nextTime });
       nextTime += 60 / bpm() / 4;
       step = (step + 1) % STEPS;
@@ -372,13 +429,17 @@
 
   // Musically biased random groove rather than pure noise
   document.getElementById('drum-random').addEventListener('click', function () {
-    var p = [[], [], [], []];
+    var p = tracks.map(function () { return []; });
     for (var c = 0; c < STEPS; c++) {
-      var beat = c % 4 === 0, back = c % 8 === 4;
+      var beat = c % 4 === 0, back = c % 8 === 4, off = c % 2 === 1;
       p[0][c] = (c === 0 || (beat && Math.random() < 0.5) || (!back && Math.random() < 0.15)) ? 1 : 0;
       p[1][c] = (back || (!beat && Math.random() < 0.08)) ? 1 : 0;
       p[2][c] = (c % 2 === 0 ? Math.random() < 0.9 : Math.random() < 0.35) ? 1 : 0;
-      p[3][c] = (back && Math.random() < 0.4) || Math.random() < 0.05 ? 1 : 0;
+      p[3][c] = (!beat && !back && Math.random() < 0.18) ? 1 : 0;
+      p[4][c] = ((off && Math.random() < 0.15) || (beat && Math.random() < 0.12)) ? 1 : 0;
+      // Bass leans on the root and follows the kick a bit
+      var playBass = c === 0 || (p[0][c] && Math.random() < 0.7) || Math.random() < 0.2;
+      p[BASS][c] = playBass ? (Math.random() < 0.45 ? 1 : 1 + Math.ceil(Math.random() * (NOTES.length - 1))) : 0;
     }
     pattern = p;
     renderAll();

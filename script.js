@@ -260,7 +260,13 @@
       ctx = new AC();
       master = ctx.createGain();
       master.gain.value = 0.7;
-      master.connect(ctx.destination);
+      var comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -12;
+      comp.ratio.value = 4;
+      comp.attack.value = 0.005;
+      comp.release.value = 0.15;
+      master.connect(comp);
+      comp.connect(ctx.destination);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       var d = noiseBuf.getChannelData(0);
       for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -346,26 +352,61 @@
       o.stop(t + 0.4);
     });
   }
+  // 808-style sub bass: a sine with a short pitch punch, soft-clipped so it
+  // still has some growl on laptop speakers. Monophonic: a new note cuts the last.
+  var bassDrive = null, bassVoice = null;
   function bass(t, v) {
     var note = NOTES[(v || 1) - 1];
-    var len = Math.min(0.35, 60 / bpm() / 2);
+    var len = Math.min(0.9, 60 / bpm() * 0.9);
+
+    if (!bassDrive) {
+      bassDrive = ctx.createWaveShaper();
+      var curve = new Float32Array(1024);
+      for (var i = 0; i < curve.length; i++) {
+        var x = i / (curve.length - 1) * 2 - 1;
+        curve[i] = Math.tanh(3 * x);
+      }
+      bassDrive.curve = curve;
+      var tone = ctx.createBiquadFilter();
+      tone.type = 'lowpass';
+      tone.frequency.value = 900;
+      var out = ctx.createGain();
+      out.gain.value = 0.7;
+      bassDrive.connect(tone);
+      tone.connect(out);
+      out.connect(master);
+    }
+
+    if (bassVoice && bassVoice.end > t) {
+      bassVoice.g.gain.cancelScheduledValues(t);
+      bassVoice.g.gain.setTargetAtTime(0, t, 0.008);
+    }
+
     var o = ctx.createOscillator();
-    o.type = 'sawtooth';
-    o.frequency.setValueAtTime(note.freq, t);
-    var f = ctx.createBiquadFilter();
-    f.type = 'lowpass';
-    f.Q.value = 6;
-    f.frequency.setValueAtTime(1400, t);
-    f.frequency.exponentialRampToValueAtTime(180, t + len);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(note.freq * 2, t);
+    o.frequency.exponentialRampToValueAtTime(note.freq, t + 0.035);
     var g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.5, t + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.001, t + len);
-    o.connect(f);
-    f.connect(g);
-    g.connect(master);
+    g.gain.exponentialRampToValueAtTime(1, t + 0.006);
+    g.gain.setTargetAtTime(0.55, t + 0.04, 0.12);
+    g.gain.setTargetAtTime(0.0001, t + len * 0.7, len * 0.12);
+    // Quiet octave layer so the note still reads on small speakers
+    var o2 = ctx.createOscillator();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(note.freq * 4, t);
+    o2.frequency.exponentialRampToValueAtTime(note.freq * 2, t + 0.035);
+    var g2 = ctx.createGain();
+    g2.gain.value = 0.18;
+    o.connect(g);
+    o2.connect(g2);
+    g2.connect(g);
+    g.connect(bassDrive);
     o.start(t);
-    o.stop(t + len + 0.02);
+    o2.start(t);
+    o.stop(t + len + 0.2);
+    o2.stop(t + len + 0.2);
+    bassVoice = { g: g, end: t + len + 0.2 };
   }
 
   // ----- Scheduler (look-ahead) -----

@@ -544,11 +544,14 @@
   box.setAttribute('role', 'dialog');
   box.setAttribute('aria-modal', 'true');
   box.setAttribute('aria-label', 'Enlarged figure');
+  var frame = document.createElement('div');
+  frame.className = 'lightbox-frame';
   var big = document.createElement('img');
+  frame.appendChild(big);
   var hint = document.createElement('p');
   hint.className = 'lightbox-hint';
   hint.textContent = 'click anywhere to close';
-  box.appendChild(big);
+  box.appendChild(frame);
   box.appendChild(hint);
   document.body.appendChild(box);
 
@@ -579,16 +582,18 @@
     document.documentElement.classList.add('lightbox-open');
     document.body.style.paddingRight = scrollbar ? scrollbar + 'px' : '';
 
+    frame.classList.toggle('is-holo', !!fig.closest('.paper-featured'));
+    resetTilt();
     big.alt = img.alt;
     big.src = img.currentSrc || img.src;
     box.hidden = false;
 
     var go = function () {
       var from = fig.getBoundingClientRect();
-      var to = big.getBoundingClientRect();
+      var to = frame.getBoundingClientRect();
       fig.classList.add('is-zoomed');
       box.classList.add('is-open');
-      var anim = big.animate(frames(flip(from, to)), { duration: reduce.matches ? 200 : 450, easing: EASE });
+      var anim = frame.animate(frames(flip(from, to)), { duration: reduce.matches ? 200 : 450, easing: EASE });
       anim.onfinish = function () { busy = false; };
       box.focus({ preventScroll: true });
     };
@@ -600,9 +605,10 @@
     busy = true;
     var fig = current;
     var from = fig.getBoundingClientRect();
-    var to = big.getBoundingClientRect();
+    resetTilt();
+    var to = frame.getBoundingClientRect();
     box.classList.remove('is-open');
-    var anim = big.animate(frames(flip(from, to)).reverse(), { duration: reduce.matches ? 180 : 380, easing: EASE, fill: 'forwards' });
+    var anim = frame.animate(frames(flip(from, to)).reverse(), { duration: reduce.matches ? 180 : 380, easing: EASE, fill: 'forwards' });
     anim.onfinish = function () {
       box.hidden = true;
       anim.cancel();
@@ -614,6 +620,33 @@
       fig.focus({ preventScroll: true });
     };
   }
+
+  // Same card tilt and glare as in the list, on the enlarged figure
+  var MAX = 8, tiltRaf = null, tiltEv = null;
+  function resetTilt() {
+    if (tiltRaf) { cancelAnimationFrame(tiltRaf); tiltRaf = null; }
+    frame.classList.remove('is-tilting');
+    frame.style.setProperty('--rx', '0deg');
+    frame.style.setProperty('--ry', '0deg');
+  }
+  function tilt() {
+    tiltRaf = null;
+    var r = frame.getBoundingClientRect();
+    var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
+    var nx = clamp((tiltEv.clientX - (r.left + r.width / 2)) / (r.width / 2));
+    var ny = clamp((tiltEv.clientY - (r.top + r.height / 2)) / (r.height / 2));
+    frame.style.setProperty('--ry', (nx * MAX).toFixed(2) + 'deg');
+    frame.style.setProperty('--rx', (-ny * MAX).toFixed(2) + 'deg');
+    frame.style.setProperty('--gx', ((tiltEv.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+    frame.style.setProperty('--gy', ((tiltEv.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+  }
+  frame.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse' || busy) return;
+    tiltEv = e;
+    frame.classList.add('is-tilting');
+    if (!tiltRaf) tiltRaf = requestAnimationFrame(tilt);
+  });
+  frame.addEventListener('pointerleave', resetTilt);
 
   box.tabIndex = -1;
   box.addEventListener('click', close);

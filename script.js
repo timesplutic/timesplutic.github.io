@@ -528,3 +528,106 @@
     });
   });
 })();
+
+// ---------- Figure lightbox ----------
+// Click a paper figure to enlarge it, click anywhere (or press Esc) to put it back.
+// The figure flies from its spot in the card to the center and back again.
+(function () {
+  var figs = document.querySelectorAll('.paper-fig');
+  if (!figs.length) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var EASE = 'cubic-bezier(.2, .8, .2, 1)';
+
+  var box = document.createElement('div');
+  box.className = 'lightbox';
+  box.hidden = true;
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-label', 'Enlarged figure');
+  var big = document.createElement('img');
+  var hint = document.createElement('p');
+  hint.className = 'lightbox-hint';
+  hint.textContent = 'click anywhere to close';
+  box.appendChild(big);
+  box.appendChild(hint);
+  document.body.appendChild(box);
+
+  var current = null, busy = false;
+
+  // Transform that maps the enlarged image back onto the thumbnail's box
+  function flip(from, to) {
+    var dx = (from.left + from.width / 2) - (to.left + to.width / 2);
+    var dy = (from.top + from.height / 2) - (to.top + to.height / 2);
+    var sx = from.width / to.width, sy = from.height / to.height;
+    return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + sx + ', ' + sy + ')';
+  }
+  function frames(start) {
+    return reduce.matches
+      ? [{ transform: 'scale(0.96)', opacity: 0 }, { transform: 'none', opacity: 1 }]
+      : [{ transform: start }, { transform: 'none' }];
+  }
+
+  function open(fig) {
+    if (busy || current) return;
+    var img = fig.querySelector('img');
+    current = fig;
+    busy = true;
+    var card = fig.closest('.paper');
+    if (card) card.dispatchEvent(new PointerEvent('pointerleave'));  // drop any tilt first
+
+    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.classList.add('lightbox-open');
+    document.body.style.paddingRight = scrollbar ? scrollbar + 'px' : '';
+
+    big.alt = img.alt;
+    big.src = img.currentSrc || img.src;
+    box.hidden = false;
+
+    var go = function () {
+      var from = fig.getBoundingClientRect();
+      var to = big.getBoundingClientRect();
+      fig.classList.add('is-zoomed');
+      box.classList.add('is-open');
+      var anim = big.animate(frames(flip(from, to)), { duration: reduce.matches ? 200 : 450, easing: EASE });
+      anim.onfinish = function () { busy = false; };
+      box.focus({ preventScroll: true });
+    };
+    if (big.complete && big.naturalWidth) go(); else big.onload = go;
+  }
+
+  function close() {
+    if (busy || !current) return;
+    busy = true;
+    var fig = current;
+    var from = fig.getBoundingClientRect();
+    var to = big.getBoundingClientRect();
+    box.classList.remove('is-open');
+    var anim = big.animate(frames(flip(from, to)).reverse(), { duration: reduce.matches ? 180 : 380, easing: EASE, fill: 'forwards' });
+    anim.onfinish = function () {
+      box.hidden = true;
+      anim.cancel();
+      fig.classList.remove('is-zoomed');
+      document.documentElement.classList.remove('lightbox-open');
+      document.body.style.paddingRight = '';
+      current = null;
+      busy = false;
+      fig.focus({ preventScroll: true });
+    };
+  }
+
+  box.tabIndex = -1;
+  box.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+
+  figs.forEach(function (fig) {
+    fig.setAttribute('role', 'button');
+    fig.setAttribute('tabindex', '0');
+    fig.setAttribute('aria-label', 'Enlarge figure');
+    fig.addEventListener('click', function () { open(fig); });
+    fig.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(fig); }
+    });
+  });
+})();

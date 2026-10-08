@@ -495,6 +495,8 @@
 // the cursor leaves. Mouse only, so touch scrolling never triggers it.
 (function () {
   var MAX = 12; // degrees
+  // Light position as a percentage, kept inside the figure so the foil never runs off its edge
+  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
   document.querySelectorAll('.paper').forEach(function (card) {
     var fig = card.querySelector('.paper-fig');
     if (!fig) return;
@@ -510,8 +512,8 @@
       var ny = clamp((ev.clientY - (c.top + c.height / 2)) / (c.height / 2));
       fig.style.setProperty('--ry', (nx * MAX).toFixed(2) + 'deg');
       fig.style.setProperty('--rx', (-ny * MAX).toFixed(2) + 'deg');
-      fig.style.setProperty('--gx', ((ev.clientX - r.left) / r.width * 100).toFixed(1) + '%');
-      fig.style.setProperty('--gy', ((ev.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      fig.style.setProperty('--gx', pct((ev.clientX - r.left) / r.width));
+      fig.style.setProperty('--gy', pct((ev.clientY - r.top) / r.height));
     }
 
     card.addEventListener('pointermove', function (e) {
@@ -593,6 +595,8 @@
     var go = function () {
       var from = fig.getBoundingClientRect();
       var to = frame.getBoundingClientRect();
+      // Perspective scales with the frame, so a small phone frame still visibly tilts
+      frame.style.setProperty('--persp', Math.round(Math.max(600, Math.min(1600, to.width * 1.35))) + 'px');
       fig.classList.add('is-zoomed');
       box.classList.add('is-open');
       var anim = frame.animate(frames(flip(from, to)), { duration: reduce.matches ? 200 : 450, easing: EASE });
@@ -624,7 +628,8 @@
   }
 
   // Same card tilt and glare as in the list, on the enlarged figure
-  var MAX = 8, tiltRaf = null, tiltEv = null;
+  var MAX = 8, MAX_TOUCH = 14, tiltRaf = null, tiltEv = null;
+  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
   function resetTilt() {
     if (tiltRaf) { cancelAnimationFrame(tiltRaf); tiltRaf = null; }
     frame.classList.remove('is-tilting');
@@ -637,10 +642,11 @@
     var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
     var nx = clamp((tiltEv.clientX - (r.left + r.width / 2)) / (r.width / 2));
     var ny = clamp((tiltEv.clientY - (r.top + r.height / 2)) / (r.height / 2));
-    frame.style.setProperty('--ry', (nx * MAX).toFixed(2) + 'deg');
-    frame.style.setProperty('--rx', (-ny * MAX).toFixed(2) + 'deg');
-    frame.style.setProperty('--gx', ((tiltEv.clientX - r.left) / r.width * 100).toFixed(1) + '%');
-    frame.style.setProperty('--gy', ((tiltEv.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+    var max = tiltEv.pointerType === 'touch' ? MAX_TOUCH : MAX;
+    frame.style.setProperty('--ry', (nx * max).toFixed(2) + 'deg');
+    frame.style.setProperty('--rx', (-ny * max).toFixed(2) + 'deg');
+    frame.style.setProperty('--gx', pct((tiltEv.clientX - r.left) / r.width));
+    frame.style.setProperty('--gy', pct((tiltEv.clientY - r.top) / r.height));
   }
   frame.addEventListener('pointermove', function (e) {
     if (e.pointerType !== 'mouse' || busy) return;
@@ -665,6 +671,12 @@
     if (e.pointerId !== touchId) return;
     if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
     if (!dragged) return;
+    // Like the mouse, the effect only runs while the finger is over the figure
+    var r = frame.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+      resetTilt();
+      return;
+    }
     tiltEv = e;
     frame.classList.add('is-tilting');
     if (!tiltRaf) tiltRaf = requestAnimationFrame(tilt);

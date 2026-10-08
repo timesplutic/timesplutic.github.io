@@ -457,7 +457,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .paper-featured .paper-fig::after,
 .lightbox-frame.is-holo::after {
   background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
-    rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 12%, transparent 34%);
+    rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.14) 14%, transparent 34%);
 }
 .paper-fig::after, .lightbox-frame::after { z-index: 2; }
 .paper-fig.is-tilting { transition: transform 0.15s ease-out, box-shadow 0.6s ease; }

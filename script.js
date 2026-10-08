@@ -550,7 +550,9 @@
   frame.appendChild(big);
   var hint = document.createElement('p');
   hint.className = 'lightbox-hint';
-  hint.textContent = 'click anywhere to close';
+  hint.textContent = window.matchMedia('(hover: none)').matches
+    ? 'drag to tilt \u00b7 tap to close'
+    : 'click anywhere to close';
   box.appendChild(frame);
   box.appendChild(hint);
   document.body.appendChild(box);
@@ -648,8 +650,38 @@
   });
   frame.addEventListener('pointerleave', resetTilt);
 
+  // Touch: dragging a finger anywhere on the overlay tilts the figure, a plain
+  // tap still closes it. A second finger (pinch zoom) cancels the tilt.
+  var touchId = null, startX = 0, startY = 0, dragged = false, skipClick = false;
+  box.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'touch' || busy) return;
+    skipClick = false;
+    if (touchId !== null) { touchId = null; dragged = true; resetTilt(); return; }
+    touchId = e.pointerId;
+    startX = e.clientX; startY = e.clientY;
+    dragged = false;
+  });
+  box.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== touchId) return;
+    if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
+    if (!dragged) return;
+    tiltEv = e;
+    frame.classList.add('is-tilting');
+    if (!tiltRaf) tiltRaf = requestAnimationFrame(tilt);
+  });
+  function endTouch(e) {
+    if (e.pointerId !== touchId) return;
+    touchId = null;
+    if (dragged) { skipClick = true; resetTilt(); }
+  }
+  box.addEventListener('pointerup', endTouch);
+  box.addEventListener('pointercancel', endTouch);
+
   box.tabIndex = -1;
-  box.addEventListener('click', close);
+  box.addEventListener('click', function () {
+    if (skipClick) { skipClick = false; return; }
+    close();
+  });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
   });

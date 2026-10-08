@@ -496,6 +496,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 @media (hover: none) { .fig-hint { display: none; } }
 
 .lightbox {
+  touch-action: pinch-zoom; /* one-finger drags reach the tilt handler, pinch still zooms */
   position: fixed;
   inset: 0;
   z-index: 100;

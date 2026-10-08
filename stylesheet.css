@@ -421,8 +421,10 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
-/* First-author papers get a holographic foil: a pastel rainbow band that sweeps
-   with the cursor. Multiply keeps the figure's dark lines crisp on white. */
+/* First-author papers get a metallic holographic foil, built from three layers:
+   chrome sheen bands that drift against the cursor, fine foil streaks, and a
+   full rainbow spectrum (no transparent ends) that follows the cursor.
+   Multiply keeps the figure's dark lines crisp on the white background. */
 .paper-featured .paper-fig::before,
 .lightbox-frame.is-holo::before {
   content: '';
@@ -430,17 +432,33 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  background: linear-gradient(115deg,
-    transparent 22%, #ffc2df 32%, #c4d2ff 41%, #b8f2e0 50%, #fff0b3 59%, #ffc2df 68%, transparent 78%);
-  background-size: 250% 250%;
-  background-position: var(--gx, 50%) var(--gy, 50%);
+  background:
+    linear-gradient(115deg,
+      transparent 0%, rgba(90, 95, 115, 0.3) 16%, transparent 28%,
+      rgba(90, 95, 115, 0.22) 50%, transparent 62%,
+      rgba(90, 95, 115, 0.3) 84%, transparent 100%),
+    repeating-linear-gradient(115deg, rgba(40, 40, 60, 0.05) 0 1px, transparent 1px 4px),
+    linear-gradient(115deg,
+      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff, #d3a8ff,
+      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff);
+  background-size: 300% 300%, auto, 300% 300%;
+  background-position:
+    calc(100% - var(--gx, 50%)) calc(100% - var(--gy, 50%)),
+    0 0,
+    var(--gx, 50%) var(--gy, 50%);
   mix-blend-mode: multiply;
   opacity: 0;
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
-.paper-featured .paper-fig.is-tilting::before { opacity: 0.85; }
-.lightbox-frame.is-holo.is-tilting::before { opacity: 0.6; }
+.paper-featured .paper-fig.is-tilting::before { opacity: 0.75; }
+.lightbox-frame.is-holo.is-tilting::before { opacity: 0.55; }
+/* A tighter, brighter glint on top, like light catching chrome */
+.paper-featured .paper-fig::after,
+.lightbox-frame.is-holo::after {
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 12%, transparent 34%);
+}
 .paper-fig::after, .lightbox-frame::after { z-index: 2; }
 .paper-fig.is-tilting { transition: transform 0.15s ease-out, box-shadow 0.6s ease; }
 .paper-fig.is-tilting::after { opacity: 1; }

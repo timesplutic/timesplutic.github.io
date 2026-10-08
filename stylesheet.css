@@ -520,7 +520,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
   cursor: zoom-out;
-  transform: perspective(1600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform: perspective(var(--persp, 1600px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform 0.7s cubic-bezier(.2, .8, .2, 1);
 }
 .lightbox-frame.is-tilting { transition: transform 0.15s ease-out; }

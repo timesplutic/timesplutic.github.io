@@ -489,3 +489,42 @@
   // Don't keep drumming in a background tab
   document.addEventListener('visibilitychange', function () { if (document.hidden && playing) stop(); });
 })();
+
+// ---------- Paper figure tilt ----------
+// The figure turns toward the cursor like a physical card, and eases back when
+// the cursor leaves. Mouse only, so touch scrolling never triggers it.
+(function () {
+  var MAX = 12; // degrees
+  document.querySelectorAll('.paper').forEach(function (card) {
+    var fig = card.querySelector('.paper-fig');
+    if (!fig) return;
+    var raf = null, ev = null;
+
+    function update() {
+      raf = null;
+      var r = fig.getBoundingClientRect();
+      var c = card.getBoundingClientRect();
+      var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
+      // The whole card is the tilt surface, so the figure responds across the full card
+      var nx = clamp((ev.clientX - (c.left + c.width / 2)) / (c.width / 2));
+      var ny = clamp((ev.clientY - (c.top + c.height / 2)) / (c.height / 2));
+      fig.style.setProperty('--ry', (nx * MAX).toFixed(2) + 'deg');
+      fig.style.setProperty('--rx', (-ny * MAX).toFixed(2) + 'deg');
+      fig.style.setProperty('--gx', ((ev.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+      fig.style.setProperty('--gy', ((ev.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+    }
+
+    card.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      ev = e;
+      fig.classList.add('is-tilting');
+      if (!raf) raf = requestAnimationFrame(update);
+    });
+    card.addEventListener('pointerleave', function () {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      fig.classList.remove('is-tilting');
+      fig.style.setProperty('--rx', '0deg');
+      fig.style.setProperty('--ry', '0deg');
+    });
+  });
+})();

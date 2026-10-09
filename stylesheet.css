@@ -446,7 +446,9 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
-.paper-featured .card.is-tilting .card-face::before { opacity: 0.6; }
+/* While the card tilts, the foil follows the cursor at the same strength as
+   the resting glint, so it never looks weaker when the card is held */
+.paper-featured .card.is-tilting .card-face::before { mix-blend-mode: overlay; opacity: 0.85; }
 /* At rest the foil keeps drifting and a light sheen sweeps across it now and
    then, so first-author cards glint even before they are touched */
 .paper-featured .card:not(.is-tilting) .card-face::before {

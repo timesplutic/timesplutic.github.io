@@ -352,6 +352,22 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .chip:hover { color: var(--text); border-color: var(--text-muted); }
 .chip.is-active { background: var(--text); border-color: var(--text); color: var(--bg); }
 .chip .count { font-family: var(--font-mono); font-size: 12px; opacity: 0.6; margin-left: 2px; }
+/* Color dot matching the card color of that field */
+.chip .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--dot);
+  box-shadow: 0 0 0 1.5px var(--bg-elev);
+}
+.chip.is-active .dot { box-shadow: 0 0 0 1.5px var(--text); }
+.chip .dot.t-psychic   { --dot: #a98bdc; }
+.chip .dot.t-lightning { --dot: #6f9fe0; }
+.chip .dot.t-fire      { --dot: #ec8f5e; }
+.chip .dot.t-grass     { --dot: #67b872; }
 
 .legend { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
 

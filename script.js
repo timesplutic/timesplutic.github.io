@@ -538,7 +538,8 @@
 
 // ---------- Card view ----------
 // Click or tap a paper card to lift it, enlarged, to the center of the screen.
-// The cursor (or a finger drag on touch screens) tilts it, a click or tap closes it.
+// The cursor (or a finger drag on touch screens) tilts it. Clicking the card
+// flips it over to the shared card back, clicking outside the card closes it.
 (function () {
   var touchScreen = window.matchMedia('(hover: none)');
   var papers = document.querySelectorAll('.paper');
@@ -561,7 +562,32 @@
   view.appendChild(hint);
   document.body.appendChild(view);
 
-  var src = null, clone = null, card = null, fig = null, busy = false;
+  var src = null, clone = null, card = null, fig = null, busy = false, flipped = false;
+
+  // The back of the card, the same for every paper: a ViT-style patch grid
+  // with a name plate, like the back of a trading card
+  function buildBack() {
+    var back = document.createElement('div');
+    back.className = 'card-back';
+    back.innerHTML =
+      '<div class="back-patches"></div>' +
+      '<p class="back-title">Paper Collection</p>' +
+      '<div class="back-plate">' +
+        '<p class="back-name">Junhyeok Kim</p>' +
+        '<p class="back-email">timespt@yonsei.ac.kr</p>' +
+      '</div>' +
+      '<p class="back-lab">MICV Lab</p>';
+    return back;
+  }
+
+  function setFlip(on) {
+    if (!card) return;
+    flipped = on;
+    card.classList.add('is-flipping');
+    card.style.setProperty('--flip', on ? '180deg' : '0deg');
+    clearTimeout(card._flipTimer);
+    card._flipTimer = setTimeout(function () { if (card) card.classList.remove('is-flipping'); }, 700);
+  }
 
   function flip(from, to) {
     var dx = (from.left + from.width / 2) - (to.left + to.width / 2);
@@ -572,8 +598,8 @@
   function open(paper, viaTouch) {
     if (busy || src) return;
     hint.textContent = viaTouch
-      ? 'drag to tilt \u00b7 tap to close'
-      : 'move to tilt \u00b7 click anywhere to close';
+      ? 'tap to flip \u00b7 drag to tilt \u00b7 tap outside to close'
+      : 'click card to flip \u00b7 click outside to close';
     busy = true;
     src = paper;
     clone = paper.cloneNode(true);
@@ -588,6 +614,8 @@
     view.insertBefore(clone, hint);
     card = clone.querySelector('.card');
     fig = clone.querySelector('.paper-fig');
+    flipped = false;
+    card.appendChild(buildBack());
 
     document.documentElement.classList.add('lightbox-open');
     view.hidden = false;
@@ -605,6 +633,7 @@
     if (busy || !src) return;
     busy = true;
     resetTilt();
+    if (flipped) setFlip(false);
     var to = src.querySelector('.card').getBoundingClientRect();
     var from = card.getBoundingClientRect();
     view.classList.remove('is-open');
@@ -669,12 +698,16 @@
     if (e.pointerId !== touchId) return;
     touchId = null;
     if (dragged) { if (e.pointerType !== 'mouse') resetTilt(); return; }
-    if (e.type === 'pointerup' && !e.target.closest('a')) close();
+    if (e.type !== 'pointerup' || e.target.closest('a')) return;
+    // A click on the card flips it, a click outside closes the view
+    if (card && card.contains(e.target)) setFlip(!flipped);
+    else close();
   }
   view.addEventListener('pointerup', endTouch);
   view.addEventListener('pointercancel', endTouch);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
+    else if ((e.key === 'Enter' || e.key === ' ') && src && !busy) { e.preventDefault(); setFlip(!flipped); }
   });
 
   papers.forEach(function (paper) {

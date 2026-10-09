@@ -539,7 +539,7 @@
 // ---------- Card view ----------
 // Click or tap a paper card to lift it, enlarged, to the center of the screen.
 // The cursor (or a finger drag on touch screens) tilts it. Clicking the card
-// flips it over to the abstract, clicking outside the card closes it.
+// flips it over to the shared card back, clicking outside the card closes it.
 (function () {
   var touchScreen = window.matchMedia('(hover: none)');
   var papers = document.querySelectorAll('.paper');
@@ -564,39 +564,24 @@
 
   var src = null, clone = null, card = null, fig = null, busy = false, flipped = false;
 
-  // The back of the card: title, abstract and a link to the paper
-  function buildBack(paper) {
-    var abs = paper.querySelector('.paper-abstract');
-    if (!abs) return null;
-    var link = paper.querySelector('.paper-title a');
+  // The back of the card, the same for every paper: a ViT-style patch grid
+  // with a name plate, like the back of a trading card
+  function buildBack() {
     var back = document.createElement('div');
     back.className = 'card-back';
-    var head = document.createElement('div');
-    head.className = 'back-head';
-    head.innerHTML = '<span class="back-label">Abstract</span>';
-    var meta = paper.querySelector('.paper-meta');
-    if (meta) head.appendChild(meta.cloneNode(true));
-    var title = document.createElement('h4');
-    title.className = 'back-title';
-    title.textContent = link ? link.textContent : '';
-    var text = document.createElement('div');
-    text.className = 'back-abstract';
-    text.innerHTML = abs.innerHTML;
-    back.appendChild(head);
-    back.appendChild(title);
-    back.appendChild(text);
-    if (link) {
-      var a = document.createElement('a');
-      a.className = 'back-link';
-      a.href = link.href;
-      a.textContent = 'Read the paper \u2197';
-      back.appendChild(a);
-    }
+    back.innerHTML =
+      '<div class="back-patches"></div>' +
+      '<p class="back-title">Paper Collection</p>' +
+      '<div class="back-plate">' +
+        '<p class="back-name">Junhyeok Kim</p>' +
+        '<p class="back-email">timespt@yonsei.ac.kr</p>' +
+      '</div>' +
+      '<p class="back-lab">MICV Lab</p>';
     return back;
   }
 
   function setFlip(on) {
-    if (!card || !card.querySelector('.card-back')) return;
+    if (!card) return;
     flipped = on;
     card.classList.add('is-flipping');
     card.style.setProperty('--flip', on ? '180deg' : '0deg');
@@ -612,10 +597,9 @@
 
   function open(paper, viaTouch) {
     if (busy || src) return;
-    var hasBack = !!paper.querySelector('.paper-abstract');
     hint.textContent = viaTouch
-      ? (hasBack ? 'tap to flip \u00b7 drag to tilt \u00b7 tap outside to close' : 'drag to tilt \u00b7 tap to close')
-      : (hasBack ? 'click card to flip \u00b7 click outside to close' : 'move to tilt \u00b7 click anywhere to close');
+      ? 'tap to flip \u00b7 drag to tilt \u00b7 tap outside to close'
+      : 'click card to flip \u00b7 click outside to close';
     busy = true;
     src = paper;
     clone = paper.cloneNode(true);
@@ -631,8 +615,7 @@
     card = clone.querySelector('.card');
     fig = clone.querySelector('.paper-fig');
     flipped = false;
-    var back = buildBack(paper);
-    if (back) card.appendChild(back);
+    card.appendChild(buildBack());
 
     document.documentElement.classList.add('lightbox-open');
     view.hidden = false;
@@ -716,8 +699,8 @@
     touchId = null;
     if (dragged) { if (e.pointerType !== 'mouse') resetTilt(); return; }
     if (e.type !== 'pointerup' || e.target.closest('a')) return;
-    // On a card with a back, a click on the card flips it and a click outside closes
-    if (card && card.querySelector('.card-back') && card.contains(e.target)) setFlip(!flipped);
+    // A click on the card flips it, a click outside closes the view
+    if (card && card.contains(e.target)) setFlip(!flipped);
     else close();
   }
   view.addEventListener('pointerup', endTouch);

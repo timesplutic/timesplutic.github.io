@@ -603,55 +603,61 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .card-view .card.is-tilting .card-face::after,
 .card-view .card.is-tilting .card-back::after { opacity: 1; }
 
+/* The shared card back: a ViT patch grid (8 x 11 patches) that fades toward
+   the edges, with the text and name plate aligned to the patch rows */
 .card-back {
+  --pw: calc(100% / 8);
+  --ph: calc(100% / 11);
   position: absolute;
   inset: 2cqw;
-  display: flex;
-  flex-direction: column;
-  gap: 2.2cqw;
-  padding: 3.4cqw 3.6cqw;
   border-radius: 2.4cqw;
   overflow: hidden;
-  color: var(--ink);
-  background: linear-gradient(170deg, var(--t1) 0%, var(--t2) 55%, var(--t1) 100%);
+  color: #25272e;
+  background: linear-gradient(170deg, #e4e6eb, #f6f7f9 55%, #e4e6eb);
   transform: rotateY(180deg) translateZ(1px);
 }
-.back-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.6cqw; }
-.back-label {
+.back-patches {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(23, 24, 28, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 24, 28, 0.09) 1px, transparent 1px);
+  background-size: var(--pw) var(--ph);
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 30%, transparent 100%);
+}
+.back-title,
+.back-lab {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0;
+  transform: translateY(-50%);
+  text-align: center;
   font-family: var(--font-mono);
-  font-size: 2.5cqw;
-  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-}
-.back-title { margin: 0; font-size: 3.7cqw; font-weight: 700; line-height: 1.25; text-wrap: balance; }
-.back-abstract {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 2.6cqw 2.8cqw;
-  border-radius: 1.4cqw;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 0.4cqw 1.2cqw rgba(30, 30, 50, 0.08);
-  font-size: 2.85cqw;
-  line-height: 1.42;
-}
-.back-abstract p { margin: 0; }
-.back-abstract p + p { margin-top: 1.6cqw; }
-.back-link {
-  align-self: flex-start;
-  padding: 1.5cqw 2.6cqw;
-  border-radius: 0.8cqw;
-  font-size: 2.9cqw;
-  font-weight: 700;
   line-height: 1;
-  color: #fff;
-  background: #2a2c33;
-  box-shadow: 0 0.3cqw 0.8cqw rgba(30, 30, 50, 0.12);
-  text-decoration: none;
 }
-.back-link:hover { text-decoration: underline; }
+.back-title { top: calc(var(--ph) * 2.5); font-size: 3.1cqw; font-weight: 500; letter-spacing: 0.38em; }
+.back-lab { top: calc(var(--ph) * 8.5); font-size: 2.7cqw; letter-spacing: 0.38em; color: #6a6c76; }
+.back-plate {
+  position: absolute;
+  left: var(--pw);
+  right: var(--pw);
+  top: calc(var(--ph) * 4.5);
+  height: calc(var(--ph) * 2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4cqw;
+  border-radius: 1.4cqw;
+  background: #25272e;
+  color: #fff;
+  box-shadow: 0 1.2cqw 3cqw rgba(30, 30, 50, 0.2);
+}
+.back-name { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 9.6cqw; line-height: 1; }
+.back-email { margin: 0; font-family: var(--font-mono); font-size: 2.6cqw; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.7); }
 
 /* Hint line under the enlarged card */
 .lightbox-hint {

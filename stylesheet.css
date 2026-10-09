@@ -368,7 +368,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .chip .dot.t-lightning { --dot: #6f9fe0; }
 .chip .dot.t-fire      { --dot: #ec8f5e; }
 .chip .dot.t-grass     { --dot: #67b872; }
-.chip .dot.t-water     { --dot: #c4a46a; }
+.chip .dot.t-water     { --dot: #8d929c; }
 /* First author: a rainbow dot that keeps turning, like the holo cards */
 .chip .dot.dot-holo {
   background: conic-gradient(#ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff, #ff5fa2);
@@ -394,7 +394,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .t-lightning { --t0: #b5cdf0; --t1: #d6e4f5; --t2: #eef4fb; }
 .t-fire      { --t0: #f2c2a4; --t1: #f6dccd; --t2: #fcf0e9; }
 .t-grass     { --t0: #b5dab9; --t1: #d5e8d6; --t2: #eef6ee; }
-.t-water     { --t0: #dccdac; --t1: #e9e2d3; --t2: #f7f3ea; }
+.t-water     { --t0: #c4c7ce; --t1: #dfe1e5; --t2: #f2f3f5; }
 
 .card {
   position: relative;

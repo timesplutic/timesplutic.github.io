@@ -370,18 +370,18 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   perspective: 1000px;
 }
 .paper.is-hidden { display: none; }
-.t-psychic   { --t1: #d9b8e6; --t2: #f1e4f6; }
-.t-lightning { --t1: #f6e07a; --t2: #fcf3c4; }
-.t-fire      { --t1: #f3ab88; --t2: #fde0cf; }
-.t-grass     { --t1: #b3d79b; --t2: #e2f1d6; }
-.t-water     { --t1: #a9c8f0; --t2: #dfeafb; }
+.t-psychic   { --t1: #e3d8f1; --t2: #f4effa; }
+.t-lightning { --t1: #d6e4f5; --t2: #eef4fb; }
+.t-fire      { --t1: #f6dccd; --t2: #fcf0e9; }
+.t-grass     { --t1: #d5e8d6; --t2: #eef6ee; }
+.t-water     { --t1: #e9e2d3; --t2: #f7f3ea; }
 
 .card {
   position: relative;
   aspect-ratio: 63 / 88;
   padding: 2cqw;
   border-radius: 4cqw;
-  background: linear-gradient(135deg, #f7d64a, #e3b521 60%, #f7d64a);
+  background: linear-gradient(135deg, #f4f5f7, #c9ccd3 50%, #eef0f3);
   box-shadow: var(--shadow);
   color: var(--ink);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
@@ -508,8 +508,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
    chrome sheen bands that drift against the cursor, fine foil streaks, and a
    full rainbow spectrum (no transparent ends) that follows the cursor.
    Multiply keeps the figure's dark lines crisp on the white background. */
-.paper-featured .paper-fig::before,
-.lightbox-frame.is-holo::before {
+.paper-featured .paper-fig::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -536,27 +535,24 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 }
 .paper-featured .paper-fig::before { opacity: 0.3; }
 .paper-featured .paper-fig.is-tilting::before { opacity: 0.75; }
-.lightbox-frame.is-holo.is-tilting::before { opacity: 0.55; }
 /* A tighter, brighter glint on top, like light catching chrome */
-.paper-featured .paper-fig::after,
-.lightbox-frame.is-holo::after {
+.paper-featured .paper-fig::after {
   background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
     rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.14) 14%, transparent 34%);
 }
-.paper-fig::after, .lightbox-frame::after { z-index: 2; }
+.paper-fig::after { z-index: 2; }
 .paper-fig.is-tilting::after { opacity: 1; }
 
-/* ---------- Figure lightbox ---------- */
-.paper-fig { cursor: zoom-in; }
-.paper-fig:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.paper-fig.is-zoomed { visibility: hidden; }
-
-/* Small hint that fades in on the figure while hovering a card */
-.fig-hint {
+/* ---------- Enlarge hint ---------- */
+.paper .card { cursor: zoom-in; }
+.paper .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.paper-title a { cursor: pointer; }
+/* Small hint that fades in at the card's bottom right while hovering */
+.card-hint {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  z-index: 3;
+  right: 5cqw;
+  bottom: 5cqw;
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -574,55 +570,10 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   transition: opacity 0.35s ease, transform 0.35s ease;
   pointer-events: none;
 }
-.paper:hover .fig-hint { opacity: 1; transform: none; }
-@media (hover: none) { .fig-hint { display: none; } }
+.paper:hover .card-hint { opacity: 1; transform: none; }
+@media (hover: none) { .card-hint { display: none; } }
 
-.lightbox {
-  touch-action: pinch-zoom; /* one-finger drags reach the tilt handler, pinch still zooms */
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(10, 10, 14, 0.72);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  cursor: zoom-out;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.lightbox[hidden] { display: none; }
-.lightbox.is-open { opacity: 1; }
-.lightbox-frame {
-  position: relative;
-  padding: 16px;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-  cursor: zoom-out;
-  transform: perspective(var(--persp, 1600px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 0.7s cubic-bezier(.2, .8, .2, 1);
-}
-.lightbox-frame.is-tilting { transition: transform 0.15s ease-out; }
-.lightbox-frame img {
-  display: block;
-  max-width: calc(min(92vw, 1200px) - 32px);
-  max-height: calc(86vh - 32px);
-  object-fit: contain;
-}
-.lightbox-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.4), transparent 50%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-.lightbox-frame.is-tilting::after { opacity: 1; }
+/* Hint line under the enlarged card */
 .lightbox-hint {
   position: absolute;
   bottom: 18px;
@@ -635,9 +586,10 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 }
 html.lightbox-open { overflow: hidden; }
 
-/* ---------- Card view (touch screens) ---------- */
+/* ---------- Card view ---------- */
 .card-view {
   position: fixed;
+  cursor: zoom-out;
   inset: 0;
   z-index: 100;
   display: grid;
@@ -653,11 +605,11 @@ html.lightbox-open { overflow: hidden; }
 .card-view[hidden] { display: none; }
 .card-view.is-open { opacity: 1; }
 .card-view .paper {
-  width: min(100%, 420px, calc((100vh - 100px) * 63 / 88));
-  width: min(100%, 420px, calc((100dvh - 100px) * 63 / 88));
+  width: min(100%, 560px, calc((100vh - 100px) * 63 / 88));
+  width: min(100%, 560px, calc((100dvh - 100px) * 63 / 88));
   perspective: 900px;
 }
-@media (hover: none) { .paper .card { cursor: pointer; } }
+
 
 .paper-body {
   flex: 1;
@@ -864,9 +816,6 @@ html.lightbox-open { overflow: hidden; }
   .drum-row { grid-template-columns: 28px repeat(16, minmax(0, 1fr)); gap: 2px; }
   .drum-label { font-size: 10px; }
   .drum-cell { border-radius: 3px; font-size: 8px; }
-  .lightbox { padding: 10px; }
-  .lightbox-frame { padding: 8px; border-radius: 10px; }
-  .lightbox-frame img { max-width: calc(100vw - 36px); }
   .footer { padding: 24px 16px 40px; }
 }
 

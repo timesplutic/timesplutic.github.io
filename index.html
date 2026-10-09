@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=15">
+  <link rel="stylesheet" href="stylesheet.css?v=16">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -161,117 +161,155 @@
 
       <div class="papers">
 
-        <article class="paper paper-featured reveal" data-tags="first interp">
-          <div class="paper-fig"><img src="images/figs/uvit.png" alt="Standard Transformer layer versus unified Transformer layer with AttenFeed" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">arXiv 2026</span><span class="first-badge">First author</span></div>
-            <h3><a href="https://arxiv.org/abs/2610.10303">On the Necessity of Attention–FFN Split in Vision Transformers</a></h3>
-            <p class="authors"><strong>Junhyeok Kim</strong>, Jinyeong Kim, Jae Wan Park, Seong Jae Hwang</p>
-            <p class="desc">AttenFeed unifies Attention and FFN into a single module. Building a ViT entirely from it (uViT) reveals that
+        <article class="paper t-psychic paper-featured reveal" data-tags="first interp">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2610.10303">On the Necessity of Attention–FFN Split in Vision Transformers</a></h3><span class="star" aria-label="First author" title="First author">★</span></div>
+              <div class="paper-fig"><img src="images/figs/uvit.png" alt="Standard Transformer layer versus unified Transformer layer with AttenFeed" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">arXiv 2026</span><span class="first-badge">First author</span></div>
+                <p class="authors"><strong>Junhyeok Kim</strong>, Jinyeong Kim, Jae Wan Park, Seong Jae Hwang</p>
+                <p class="desc">AttenFeed unifies Attention and FFN into a single module. Building a ViT entirely from it (uViT) reveals that
               the rigid Attention–FFN split of standard ViTs is an inductive bias that hinders learning at smaller model scales.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="gen">
-          <div class="paper-fig"><img src="images/figs/signavox.jpg" alt="SIGNAVOX overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">arXiv 2026</span></div>
-            <h3><a href="https://arxiv.org/abs/2605.14705">Towards Continuous Sign Language Conversation from Isolated Signs</a></h3>
-            <p class="authors">Youngmin Kim, Kyobin Choo, Jiwoo Park, Minseo Kim, Chanyoung Kim, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
-            <p class="desc">SIGNAVOX is a framework that turns isolated sign clips into continuous 3D sign-language conversations
+        <article class="paper t-fire reveal" data-tags="gen">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2605.14705">Towards Continuous Sign Language Conversation from Isolated Signs</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/signavox.jpg" alt="SIGNAVOX overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">arXiv 2026</span></div>
+                <p class="authors">Youngmin Kim, Kyobin Choo, Jiwoo Park, Minseo Kim, Chanyoung Kim, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
+                <p class="desc">SIGNAVOX is a framework that turns isolated sign clips into continuous 3D sign-language conversations
               and trains a model to generate sign responses directly from prior signing context,
               without relying on text at inference time.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="interp vlm award">
-          <div class="paper-fig"><img src="images/figs/vstream_ac.png" alt="vSTREAM overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">ICML 2026</span><span class="award">Spotlight</span></div>
-            <h3><a href="https://seilk.github.io/vstream/">Real-Time Visual Attribution Streaming in Thinking Model</a></h3>
-            <p class="authors">Seil Kang, Woojung Han, <strong>Junhyeok Kim</strong>, Jinyeong Kim, Youngeun Kim, Seong Jae Hwang</p>
-            <p class="desc">vSTREAM enables real-time, faithful visual attribution streaming in multimodal reasoning models
+        <article class="paper t-lightning reveal" data-tags="interp vlm award">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://seilk.github.io/vstream/">Real-Time Visual Attribution Streaming in Thinking Model</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/vstream_ac.png" alt="vSTREAM overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">ICML 2026</span><span class="award">Spotlight</span></div>
+                <p class="authors">Seil Kang, Woojung Han, <strong>Junhyeok Kim</strong>, Jinyeong Kim, Youngeun Kim, Seong Jae Hwang</p>
+                <p class="desc">vSTREAM enables real-time, faithful visual attribution streaming in multimodal reasoning models
               by amortizing causal effect estimation from attention features.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="gen award">
-          <div class="paper-fig"><img src="images/figs/rescalingattention.png" alt="KAB and ReTRo overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">CVPR 2026</span><span class="award">Highlight</span></div>
-            <h3><a href="https://arxiv.org/abs/2603.17651">Anchoring and Rescaling Attention for Semantically Coherent Inbetweening</a></h3>
-            <p class="authors">Tae Eun Choi*, Sumin Shim*, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
-            <p class="desc">Two training-free approaches, Keyframe-anchored Attention Bias (KAB) and Rescaled Temporal RoPE (ReTRo),
+        <article class="paper t-fire reveal" data-tags="gen award">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2603.17651">Anchoring and Rescaling Attention for Semantically Coherent Inbetweening</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/rescalingattention.png" alt="KAB and ReTRo overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">CVPR 2026</span><span class="award">Highlight</span></div>
+                <p class="authors">Tae Eun Choi*, Sumin Shim*, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
+                <p class="desc">Two training-free approaches, Keyframe-anchored Attention Bias (KAB) and Rescaled Temporal RoPE (ReTRo),
               significantly enhances semantic fidelity, frame consistency, and pace stability in
               text-conditioned generative inbetweening.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="award">
-          <div class="paper-fig"><img src="images/figs/bat.png" alt="Backbone Augmented Training overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">AAAI 2026 Workshop</span><span class="award">Oral</span></div>
-            <h3><a href="https://arxiv.org/abs/2506.04288">Backbone Augmented Training for Adaptations</a></h3>
-            <p class="authors">Jae Wan Park, <strong>Junhyeok Kim</strong>, Youngjun Jun, Hyunah Ko, Seong Jae Hwang</p>
-            <p class="venue-full">Artificial Intelligence with Biased or Scarce Data</p>
-            <p class="desc">To solve the problem of scarce adaptation data, the pre-training data of the backbone model can be
+        <article class="paper t-water reveal" data-tags="award">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2506.04288">Backbone Augmented Training for Adaptations</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/bat.png" alt="Backbone Augmented Training overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue" title="Artificial Intelligence with Biased or Scarce Data">AAAI 2026 Workshop</span><span class="award">Oral</span></div>
+                <p class="authors">Jae Wan Park, <strong>Junhyeok Kim</strong>, Youngjun Jun, Hyunah Ko, Seong Jae Hwang</p>
+                <p class="desc">To solve the problem of scarce adaptation data, the pre-training data of the backbone model can be
               selectively utilized to augment the adaptation dataset.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="interp vlm award">
-          <div class="paper-fig"><img src="images/figs/lvlm_flow.png" alt="Image-to-text information flow overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">NeurIPS 2025 Workshop</span><span class="award">Spotlight</span></div>
-            <h3><a href="https://arxiv.org/abs/2509.17588">Interpreting Attention Heads for Image-to-Text Information Flow in Large Vision-Language Models</a></h3>
-            <p class="authors">Jinyeong Kim, Seil Kang, Jiwoo Park, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
-            <p class="venue-full">Mechanistic Interpretability Workshop</p>
-            <p class="desc">The image-to-text transfer in LVLMs depends on specialized attention head groups that are
+        <article class="paper t-lightning reveal" data-tags="interp vlm award">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2509.17588">Interpreting Attention Heads for Image-to-Text Information Flow in Large Vision-Language Models</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/lvlm_flow.png" alt="Image-to-text information flow overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue" title="Mechanistic Interpretability Workshop">NeurIPS 2025 Workshop</span><span class="award">Spotlight</span></div>
+                <p class="authors">Jinyeong Kim, Seil Kang, Jiwoo Park, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
+                <p class="desc">The image-to-text transfer in LVLMs depends on specialized attention head groups that are
               determined by the semantic content of the image.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper paper-featured reveal" data-tags="first interp">
-          <div class="paper-fig"><img src="images/figs/rrm.png" alt="Residual replacement model overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">NeurIPS 2025</span><span class="first-badge">First author</span></div>
-            <h3><a href="https://arxiv.org/abs/2509.17401">Interpreting vision transformers via residual replacement model</a></h3>
-            <p class="authors"><strong>Junhyeok Kim*</strong>, Jinyeong Kim*, Yumin Shim, Joohyeok Kim, Sunyoung Jung, Seong Jae Hwang</p>
-            <p class="desc">Residual replacement model explains end-to-end decision-making process of vision transformers in
+        <article class="paper t-psychic paper-featured reveal" data-tags="first interp">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2509.17401">Interpreting vision transformers via residual replacement model</a></h3><span class="star" aria-label="First author" title="First author">★</span></div>
+              <div class="paper-fig"><img src="images/figs/rrm.png" alt="Residual replacement model overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">NeurIPS 2025</span><span class="first-badge">First author</span></div>
+                <p class="authors"><strong>Junhyeok Kim*</strong>, Jinyeong Kim*, Yumin Shim, Joohyeok Kim, Sunyoung Jung, Seong Jae Hwang</p>
+                <p class="desc">Residual replacement model explains end-to-end decision-making process of vision transformers in
               human-understandable scale.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="interp vlm award">
-          <div class="paper-fig"><img src="images/figs/localization_head.png" alt="Localization heads overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">CVPR 2025</span><span class="award">Highlight</span></div>
-            <h3><a href="https://arxiv.org/abs/2503.06287">Your large vision-language model only needs a few attention heads for visual grounding</a></h3>
-            <p class="authors">Seil Kang, Jinyeong Kim, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
-            <p class="desc">A few attention heads in frozen LVLMs demonstrate strong visual grounding capabilities. These
+        <article class="paper t-lightning reveal" data-tags="interp vlm award">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2503.06287">Your large vision-language model only needs a few attention heads for visual grounding</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/localization_head.png" alt="Localization heads overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">CVPR 2025</span><span class="award">Highlight</span></div>
+                <p class="authors">Seil Kang, Jinyeong Kim, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
+                <p class="desc">A few attention heads in frozen LVLMs demonstrate strong visual grounding capabilities. These
               "localization heads" immediately enable training-free detection and segmentation.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="interp vlm">
-          <div class="paper-fig"><img src="images/figs/var.png" alt="Visual attention sink overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">ICLR 2025</span></div>
-            <h3><a href="https://arxiv.org/abs/2503.03321">See what you are told: Visual attention sink in large multimodal models</a></h3>
-            <p class="authors">Seil Kang*, Jinyeong Kim*, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
-            <p class="desc">Large multimodal models consistently see irrelevant parts of the input. Our work demystifies this
+        <article class="paper t-lightning reveal" data-tags="interp vlm">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2503.03321">See what you are told: Visual attention sink in large multimodal models</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/var.png" alt="Visual attention sink overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">ICLR 2025</span></div>
+                <p class="authors">Seil Kang*, Jinyeong Kim*, <strong>Junhyeok Kim</strong>, Seong Jae Hwang</p>
+                <p class="desc">Large multimodal models consistently see irrelevant parts of the input. Our work demystifies this
               phenomenon, dubbed "visual attention sink," and proposes a simple mitigation strategy.</p>
+              </div>
+            </div>
           </div>
         </article>
 
-        <article class="paper reveal" data-tags="vlm">
-          <div class="paper-fig"><img src="images/figs/wolf.png?v=2" alt="WoLF overview" loading="lazy"></div>
-          <div class="paper-body">
-            <div class="paper-meta"><span class="venue">arXiv 2024</span></div>
-            <h3><a href="https://arxiv.org/abs/2403.15456">WoLF: Wide-scope Large Language Model Framework for CXR Understanding</a></h3>
-            <p class="authors">Seil Kang, <strong>Junhyeok Kim</strong>, Donghyun Kim, Hyo Kyung Lee, Seong Jae Hwang</p>
-            <p class="desc">WoLF is a novel Large Language Model framework for Chest X-ray understanding that integrates
+        <article class="paper t-grass reveal" data-tags="vlm">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2403.15456">WoLF: Wide-scope Large Language Model Framework for CXR Understanding</a></h3></div>
+              <div class="paper-fig"><img src="images/figs/wolf.png?v=2" alt="WoLF overview" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">arXiv 2024</span></div>
+                <p class="authors">Seil Kang, <strong>Junhyeok Kim</strong>, Donghyun Kim, Hyo Kyung Lee, Seong Jae Hwang</p>
+                <p class="desc">WoLF is a novel Large Language Model framework for Chest X-ray understanding that integrates
               patient Electronic Health Records (EHR).</p>
+              </div>
+            </div>
           </div>
         </article>
 
@@ -336,7 +374,7 @@
     <p>© Junhyeok Kim</p>
   </footer>
 
-  <script src="script.js?v=13"></script>
+  <script src="script.js?v=14"></script>
 </body>
 
 </html>

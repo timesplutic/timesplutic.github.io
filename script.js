@@ -490,43 +490,48 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden && playing) stop(); });
 })();
 
-// ---------- Paper figure tilt ----------
-// The figure turns toward the cursor like a physical card, and eases back when
-// the cursor leaves. Mouse only, so touch scrolling never triggers it.
+// ---------- Paper card tilt ----------
+// Each paper card turns toward the cursor like a physical trading card, and
+// eases back when the cursor leaves. Mouse only, so touch scrolling never triggers it.
 (function () {
   var MAX = 12; // degrees
-  // Light position as a percentage, kept inside the figure so the foil never runs off its edge
+  // Light position as a percentage, kept inside the element so the foil never runs off its edge
   var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
-  document.querySelectorAll('.paper').forEach(function (card) {
-    var fig = card.querySelector('.paper-fig');
-    if (!fig) return;
+  document.querySelectorAll('.paper').forEach(function (paper) {
+    var card = paper.querySelector('.card');
+    var fig = paper.querySelector('.paper-fig');
+    if (!card) return;
     var raf = null, ev = null;
 
     function update() {
       raf = null;
-      var r = fig.getBoundingClientRect();
       var c = card.getBoundingClientRect();
-      var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
-      // The whole card is the tilt surface, so the figure responds across the full card
-      var nx = clamp((ev.clientX - (c.left + c.width / 2)) / (c.width / 2));
-      var ny = clamp((ev.clientY - (c.top + c.height / 2)) / (c.height / 2));
-      fig.style.setProperty('--ry', (nx * MAX).toFixed(2) + 'deg');
-      fig.style.setProperty('--rx', (-ny * MAX).toFixed(2) + 'deg');
-      fig.style.setProperty('--gx', pct((ev.clientX - r.left) / r.width));
-      fig.style.setProperty('--gy', pct((ev.clientY - r.top) / r.height));
+      var x = Math.max(0, Math.min(1, (ev.clientX - c.left) / c.width));
+      var y = Math.max(0, Math.min(1, (ev.clientY - c.top) / c.height));
+      card.style.setProperty('--ry', ((x - 0.5) * 2 * MAX).toFixed(2) + 'deg');
+      card.style.setProperty('--rx', ((0.5 - y) * 2 * MAX).toFixed(2) + 'deg');
+      card.style.setProperty('--gx', pct(x));
+      card.style.setProperty('--gy', pct(y));
+      if (fig) {
+        var r = fig.getBoundingClientRect();
+        fig.style.setProperty('--gx', pct((ev.clientX - r.left) / r.width));
+        fig.style.setProperty('--gy', pct((ev.clientY - r.top) / r.height));
+      }
     }
 
-    card.addEventListener('pointermove', function (e) {
+    paper.addEventListener('pointermove', function (e) {
       if (e.pointerType !== 'mouse') return;
       ev = e;
-      fig.classList.add('is-tilting');
+      card.classList.add('is-tilting');
+      if (fig) fig.classList.add('is-tilting');
       if (!raf) raf = requestAnimationFrame(update);
     });
-    card.addEventListener('pointerleave', function () {
+    paper.addEventListener('pointerleave', function () {
       if (raf) { cancelAnimationFrame(raf); raf = null; }
-      fig.classList.remove('is-tilting');
-      fig.style.setProperty('--rx', '0deg');
-      fig.style.setProperty('--ry', '0deg');
+      card.classList.remove('is-tilting');
+      if (fig) fig.classList.remove('is-tilting');
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
     });
   });
 })();

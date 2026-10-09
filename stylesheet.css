@@ -621,20 +621,21 @@ html.lightbox-open { overflow: hidden; }
   overflow: hidden;
 }
 .paper-meta { display: flex; flex-wrap: wrap; gap: 1.4cqw; }
+/* Solid tags with white text, lifted by the same soft shadow as the boxes */
 .venue, .award, .first-badge {
   font-size: 2.9cqw;
   font-weight: 700;
   line-height: 1;
-  padding: 1cqw 2cqw;
+  padding: 1.35cqw 2.35cqw;
   border-radius: 0.8cqw;
-  border: 0.35cqw solid var(--ink);
   white-space: nowrap;
-  color: var(--ink);
+  color: #fff;
+  box-shadow: 0 0.3cqw 0.8cqw rgba(30, 30, 50, 0.12);
 }
-.venue { background: #fff; }
-.award { background: #c8261b; border-color: #c8261b; color: #fff; }
+.venue { background: #2a2c33; }
+.award { background: #c8261b; }
 .first-badge {
-  background: linear-gradient(110deg, #ffd1dc, #fff0b8, #c9ffe0, #c4ecff, #e4d4ff, #ffd1dc);
+  background: linear-gradient(110deg, #d0508f, #e0913a, #3fae7d, #3c8fd6, #7a5ad0, #d0508f);
   background-size: 300% 100%;
   background-position: var(--gx, 50%) 0;
 }

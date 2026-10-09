@@ -680,11 +680,25 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   justify-content: center;
   gap: 2.4cqw;
   border-radius: 1.4cqw;
-  background: #25272e;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2f3139, #1f2026);
   color: #fff;
   box-shadow: 0 1.2cqw 3cqw rgba(30, 30, 50, 0.2);
 }
-.back-name { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 9.6cqw; line-height: 1; }
+/* Holo foil strip down the left edge, shifting with the tilt */
+.back-plate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0.9cqw;
+  background: linear-gradient(200deg, #ff7d9a, #ffd36b, #8affb4, #6bd5ff, #b48bff, #ff7d9a);
+  background-size: 100% 300%;
+  background-position: 0 var(--gy, 50%);
+  opacity: 0.9;
+}
+.back-name { margin: 0; font-size: 7.4cqw; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
 .back-email { margin: 0; font-family: var(--font-mono); font-size: 2.6cqw; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.7); }
 
 /* Hint line under the enlarged card */

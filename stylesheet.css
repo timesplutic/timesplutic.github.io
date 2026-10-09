@@ -770,6 +770,9 @@ html.lightbox-open { overflow: hidden; }
 /* Small print along the bottom of the card, under the text box */
 .card-foot {
   flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 0;
   padding: 0 0.6cqw;
   font: 500 2.3cqw/1 var(--font-mono);

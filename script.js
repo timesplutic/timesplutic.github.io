@@ -491,7 +491,7 @@
 })();
 
 // ---------- Card footer ----------
-// "MICV LAB · 1/10" along the bottom of each card, numbered in list order
+// "MICV LAB  ●  1/10" along the bottom of each card, numbered in list order
 (function () {
   var papers = document.querySelectorAll('.paper');
   papers.forEach(function (paper, i) {
@@ -499,7 +499,7 @@
     if (!face) return;
     var foot = document.createElement('p');
     foot.className = 'card-foot';
-    foot.textContent = 'MICV LAB \u00b7 ' + (i + 1) + '/' + papers.length;
+    foot.innerHTML = '<span>MICV LAB</span><span aria-hidden="true">\u25cf</span><span>' + (i + 1) + '/' + papers.length + '</span>';
     face.appendChild(foot);
   });
 })();

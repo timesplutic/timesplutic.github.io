@@ -582,7 +582,7 @@
   view.appendChild(hint);
   document.body.appendChild(view);
 
-  var src = null, clone = null, card = null, fig = null, busy = false, flipped = false;
+  var src = null, clone = null, card = null, fig = null, busy = false, flipped = false, turns = 0;
 
   // The back of the card, the same for every paper: a ViT-style patch grid
   // with a name plate, like the back of a trading card
@@ -600,11 +600,14 @@
     return back;
   }
 
+  // Every flip turns the card another half turn the same way, so it never
+  // swings back the way it came
   function setFlip(on) {
-    if (!card) return;
+    if (!card || on === flipped) return;
     flipped = on;
+    turns++;
     card.classList.add('is-flipping');
-    card.style.setProperty('--flip', on ? '180deg' : '0deg');
+    card.style.setProperty('--flip', (-180 * turns) + 'deg');
     clearTimeout(card._flipTimer);
     card._flipTimer = setTimeout(function () { if (card) card.classList.remove('is-flipping'); }, 700);
   }
@@ -635,6 +638,7 @@
     card = clone.querySelector('.card');
     fig = clone.querySelector('.paper-fig');
     flipped = false;
+    turns = 0;
     card.appendChild(buildBack());
 
     document.documentElement.classList.add('lightbox-open');

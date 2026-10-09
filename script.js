@@ -1,3 +1,9 @@
+/*!
+ * timesplutic.github.io
+ * Design and code by Junhyeok Kim (https://timesplutic.github.io/)
+ * Copyright (c) 2026 Junhyeok Kim. All rights reserved.
+ * Do not copy or reuse without permission. See LICENSE.
+ */
 (function () {
   var root = document.documentElement;
   root.classList.add('js');

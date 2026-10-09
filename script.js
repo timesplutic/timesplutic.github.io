@@ -732,291 +732,101 @@
   });
 })();
 
-// ---------- Record crate ----------
-// The "music" links open the year's topster as a crate of records instead of a
-// flat image. Hovering a sleeve peeks the record out, clicking one pulls it
-// onto the deck where the record slides out and spins.
+// ---------- Album shelf ----------
+// Each "music" link opens that year's albums right inside the music card.
+// Hovering (or tapping) a sleeve peeks its record out and names the album.
 (function () {
-  var links = document.querySelectorAll('a[href*="topster_"]');
-  if (!links.length) return;
+  var links = document.querySelectorAll('.music-list a[href*="topster_"]');
+  var card = document.querySelector('.misc-music');
+  if (!links.length || !card) return;
   var BASE = 'images/misc/topster/';
-  var YEARS = ['2023', '2024', '2025'];
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var EASE = 'cubic-bezier(.2, .8, .2, 1)';
-  var data = null, year = null, idx = -1, busy = false, picking = false;
+  var data = null, year = null, closeTimer = null;
 
-  var crate = document.createElement('div');
-  crate.className = 'crate';
-  crate.hidden = true;
-  crate.setAttribute('role', 'dialog');
-  crate.setAttribute('aria-modal', 'true');
-  crate.setAttribute('aria-label', 'Albums of the year');
-  crate.innerHTML =
-    '<div class="crate-inner">' +
-      '<div class="crate-head">' +
-        '<h2 class="crate-title">My <em></em></h2>' +
-        '<div class="crate-years" role="tablist">' + YEARS.map(function (y) {
-          return '<button role="tab" data-year="' + y + '">' + y + '</button>';
-        }).join('') + '</div>' +
-        '<div class="crate-actions">' +
-          '<button class="crate-btn crate-pick">Pick for me</button>' +
-          '<a class="crate-btn crate-orig" target="_blank" rel="noopener">Original</a>' +
-          '<button class="crate-btn crate-close" aria-label="Close">✕</button>' +
-        '</div>' +
-      '</div>' +
-      '<p class="crate-hint"></p>' +
-      '<div class="crate-grid"></div>' +
-    '</div>' +
-    '<p class="crate-now" aria-hidden="true"></p>' +
-    '<div class="crate-stage" hidden>' +
-      '<div class="stage-deck">' +
-        '<div class="stage-disc"><div class="disc-spin"><div class="disc-label"></div></div></div>' +
-        '<div class="stage-sleeve"></div>' +
-      '</div>' +
-      '<div class="stage-info" aria-live="polite">' +
-        '<p class="stage-rank"></p><p class="stage-album"></p><p class="stage-artist"></p>' +
-        '<div class="stage-nav">' +
-          '<button class="crate-btn stage-prev" aria-label="Previous album">←</button>' +
-          '<button class="crate-btn stage-back">All albums</button>' +
-          '<button class="crate-btn stage-next" aria-label="Next album">→</button>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(crate);
+  var shelf = document.createElement('div');
+  shelf.className = 'shelf';
+  shelf.innerHTML =
+    '<div class="shelf-inner"><div class="shelf-head">' +
+      '<span class="shelf-now" aria-live="polite"></span>' +
+      '<button class="shelf-close">close \u2715</button>' +
+    '</div><div class="shelf-grid"></div></div>';
+  card.appendChild(shelf);
+  var grid = shelf.querySelector('.shelf-grid'), now = shelf.querySelector('.shelf-now');
 
-  var $ = function (sel) { return crate.querySelector(sel); };
-  var grid = $('.crate-grid'), now = $('.crate-now'), stage = $('.crate-stage');
-  var sleeve = $('.stage-sleeve'), label = $('.disc-label');
-  var touchScreen = window.matchMedia('(hover: none)');
-
-  function pos(i) {
-    var rows = data[year].rows;
-    return (i % 5) * 25 + '% ' + (rows > 1 ? Math.floor(i / 5) / (rows - 1) * 100 : 0) + '%';
-  }
-  function album(i) { return data[year].albums[i]; }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function idle() { now.textContent = 'My ' + year + ' \u00b7 ' + data[year].albums.length + ' albums'; }
+  function show(i) {
+    var a = data[year].albums[i];
+    now.innerHTML = '<b>' + pad(i + 1) + '</b>';
+    now.appendChild(document.createTextNode(a[0] + ' \u00b7 ' + a[1]));
+  }
 
-  function setYear(y) {
+  function render(y) {
     year = y;
     var d = data[y];
-    crate.style.setProperty('--sprite', 'url("' + BASE + y + '.jpg")');
-    crate.style.setProperty('--rows-pct', d.rows * 100 + '%');
-    $('.crate-title em').textContent = y;
-    $('.crate-orig').href = 'images/misc/topster_' + y + '.png';
-    crate.querySelectorAll('.crate-years button').forEach(function (b) {
-      b.setAttribute('aria-selected', b.dataset.year === y ? 'true' : 'false');
-    });
+    shelf.style.setProperty('--sprite', 'url("' + BASE + y + '.jpg")');
+    shelf.style.setProperty('--rows-pct', d.rows * 100 + '%');
     grid.innerHTML = d.albums.map(function (a, i) {
-      return '<button class="crate-tile" data-i="' + i + '" style="--i:' + i + ';--c:' + a[2] + '" aria-label="' +
+      var p = (i % 5) * 25 + '% ' + Math.floor(i / 5) / (d.rows - 1) * 100 + '%';
+      return '<button class="shelf-tile" data-i="' + i + '" style="--i:' + i + ';--c:' + a[2] + '" aria-label="' +
         (i + 1) + '. ' + a[0].replace(/"/g, '&quot;') + ', ' + a[1].replace(/"/g, '&quot;') + '">' +
-        '<span class="tile-disc"></span><span class="tile-cover" style="background-position:' + pos(i) + '"></span></button>';
+        '<span class="tile-disc"></span><span class="tile-cover" style="background-position:' + p + '"></span></button>';
     }).join('');
-    crate.style.setProperty('--glow', d.albums[0][2]);
+    idle();
+    links.forEach(function (l) {
+      l.classList.toggle('is-active', l.dataset.year === y);
+      l.setAttribute('aria-expanded', l.dataset.year === y ? 'true' : 'false');
+    });
   }
 
-  function showNow(i) {
-    if (i < 0) { now.classList.remove('is-on'); return; }
-    var a = album(i);
-    now.innerHTML = '<b>' + pad(i + 1) + '</b>';
-    now.appendChild(document.createTextNode(a[0] + ' · ' + a[1]));
-    now.classList.add('is-on');
-    crate.style.setProperty('--glow', a[2]);
+  function open(y) {
+    clearTimeout(closeTimer);
+    render(y);
+    shelf.classList.add('is-open');
   }
-
-  function fill(i) {
-    var a = album(i);
-    idx = i;
-    sleeve.style.backgroundPosition = pos(i);
-    label.style.backgroundPosition = pos(i);
-    $('.stage-rank').textContent = 'NO. ' + pad(i + 1) + ' OF ' + year;
-    $('.stage-album').textContent = a[1];
-    $('.stage-artist').textContent = a[0];
-    crate.style.setProperty('--glow', a[2]);
-  }
-
-  function flipFrom(el) {
-    var f = el.getBoundingClientRect(), t = sleeve.getBoundingClientRect();
-    return 'translate(' + (f.left - t.left) + 'px, ' + (f.top - t.top) + 'px) scale(' + (f.width / t.width) + ')';
-  }
-  function tileEl(i) { return grid.querySelector('[data-i="' + i + '"]'); }
-
-  function play(i) {
-    if (busy) return;
-    busy = true;
-    showNow(-1);
-    fill(i);
-    stage.hidden = false;
-    crate.classList.add('is-playing');
-    var tile = tileEl(i);
-    var frames = reduce.matches
-      ? [{ opacity: 0 }, { opacity: 1 }]
-      : [{ transformOrigin: '0 0', transform: flipFrom(tile.querySelector('.tile-cover')) }, { transformOrigin: '0 0', transform: 'none' }];
-    tile.classList.add('is-away');
-    $('.stage-info').animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 400, delay: 150, easing: EASE, fill: 'backwards' });
-    sleeve.animate(frames, { duration: 480, easing: EASE }).onfinish = function () {
-      stage.classList.add('is-out');
-      busy = false;
-      $('.stage-next').focus({ preventScroll: true });
-    };
-  }
-
-  function stop() {
-    if (busy || stage.hidden) return;
-    busy = true;
-    stage.classList.remove('is-out');
-    var tile = tileEl(idx);
-    tile.scrollIntoView({ block: 'nearest' });
-    setTimeout(function () {
-      var frames = reduce.matches
-        ? [{ opacity: 1 }, { opacity: 0 }]
-        : [{ transformOrigin: '0 0', transform: 'none' }, { transformOrigin: '0 0', transform: flipFrom(tile.querySelector('.tile-cover')) }];
-      crate.classList.remove('is-playing');
-      $('.stage-info').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' });
-      sleeve.animate(frames, { duration: 420, easing: EASE }).onfinish = function () {
-        tile.classList.remove('is-away');
-        stage.hidden = true;
-        $('.stage-info').getAnimations().forEach(function (a) { a.cancel(); });
-        busy = false;
-        tile.focus({ preventScroll: true });
-      };
-    }, reduce.matches ? 0 : 260);
-  }
-
-  // Swap the record on the deck: the old one slides back into its sleeve first
-  function step(d) {
-    if (busy || stage.hidden) return;
-    var n = data[year].albums.length;
-    var next = (idx + d + n) % n;
-    busy = true;
-    stage.classList.remove('is-out');
-    tileEl(idx).classList.remove('is-away');
-    var out = sleeve.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(' + (-d * 40) + 'px)', opacity: 0 }],
-      { duration: reduce.matches ? 1 : 220, delay: reduce.matches ? 0 : 160, easing: 'ease-in', fill: 'forwards' });
-    out.onfinish = function () {
-      fill(next);
-      tileEl(next).classList.add('is-away');
-      out.cancel();
-      sleeve.animate([{ transform: 'translateX(' + (d * 40) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
-        { duration: reduce.matches ? 1 : 300, easing: EASE }).onfinish = function () {
-        stage.classList.add('is-out');
-        busy = false;
-      };
-    };
-  }
-
-  // Pick for me: a highlight hops across the crate, slows down and lands
-  function pick() {
-    if (busy || picking || !stage.hidden) return;
-    picking = true;
-    var n = data[year].albums.length;
-    var target = Math.floor(Math.random() * n);
-    var hops = reduce.matches ? 0 : 16, k = 0, cur = -1;
-    function hop() {
-      if (cur >= 0) tileEl(cur).classList.remove('is-lit');
-      if (k >= hops) {
-        cur = target;
-        var t = tileEl(cur);
-        t.classList.add('is-lit');
-        t.scrollIntoView({ block: 'nearest', behavior: reduce.matches ? 'auto' : 'smooth' });
-        showNow(cur);
-        setTimeout(function () { t.classList.remove('is-lit'); picking = false; play(target); }, reduce.matches ? 0 : 650);
-        return;
-      }
-      do { cur = Math.floor(Math.random() * n); } while (cur === target && n > 1);
-      tileEl(cur).classList.add('is-lit');
-      showNow(cur);
-      k++;
-      setTimeout(hop, 45 + k * k * 1.3);
-    }
-    hop();
-  }
-
-  var opener = null;
-  function openCrate(y, from) {
-    opener = from;
-    var go = function () {
-      setYear(y);
-      $('.crate-hint').textContent = touchScreen.matches
-        ? 'tap a record to put it on the deck'
-        : 'hover to peek · click to play · ← → on the deck';
-      crate.hidden = false;
-      document.documentElement.classList.add('lightbox-open');
-      crate.scrollTop = 0;
-      requestAnimationFrame(function () { crate.classList.add('is-open'); });
-      $('.crate-close').focus({ preventScroll: true });
-    };
-    if (data) return go();
-    fetch(BASE + 'albums.json').then(function (r) { return r.json(); }).then(function (j) { data = j; go(); })
-      .catch(function () { window.location.href = from.href; });
-  }
-
-  function closeCrate() {
-    if (busy || picking) return;
-    crate.classList.remove('is-open');
-    stage.hidden = true;
-    stage.classList.remove('is-out');
-    crate.classList.remove('is-playing');
-    showNow(-1);
-    setTimeout(function () {
-      crate.hidden = true;
-      grid.innerHTML = '';
-      document.documentElement.classList.remove('lightbox-open');
-      if (opener) opener.focus({ preventScroll: true });
-    }, 300);
+  function close() {
+    shelf.classList.remove('is-open');
+    links.forEach(function (l) { l.classList.remove('is-active'); l.setAttribute('aria-expanded', 'false'); });
+    year = null;
+    closeTimer = setTimeout(function () { grid.innerHTML = ''; }, 500);
   }
 
   links.forEach(function (a) {
     var m = a.getAttribute('href').match(/topster_(\d{4})/);
     if (!m) return;
+    a.dataset.year = m[1];
+    a.setAttribute('aria-expanded', 'false');
     a.addEventListener('click', function (e) {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;  // let "open in new tab" work
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;  // "open in new tab" still gets the PNG
       e.preventDefault();
-      openCrate(m[1], a);
+      if (year === m[1]) { close(); return; }
+      var go = function () { open(m[1]); };
+      if (data) return go();
+      fetch(BASE + 'albums.json').then(function (r) { return r.json(); })
+        .then(function (j) { data = j; go(); })
+        .catch(function () { window.location.href = a.href; });
     });
   });
+  shelf.querySelector('.shelf-close').addEventListener('click', close);
 
-  crate.querySelectorAll('.crate-years button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      if (busy || picking || b.dataset.year === year) return;
-      if (!stage.hidden) { stage.hidden = true; stage.classList.remove('is-out'); crate.classList.remove('is-playing'); }
-      setYear(b.dataset.year);
-    });
-  });
-  $('.crate-pick').addEventListener('click', pick);
-  $('.crate-close').addEventListener('click', closeCrate);
-  $('.stage-prev').addEventListener('click', function () { step(-1); });
-  $('.stage-next').addEventListener('click', function () { step(1); });
-  $('.stage-back').addEventListener('click', stop);
-
-  grid.addEventListener('click', function (e) {
-    var t = e.target.closest('.crate-tile');
-    if (t && !picking) play(+t.dataset.i);
-  });
+  var on = null;
+  function setOn(t) {
+    if (on) on.classList.remove('is-on');
+    on = t;
+    if (t) { t.classList.add('is-on'); show(+t.dataset.i); } else if (year) idle();
+  }
   grid.addEventListener('pointerover', function (e) {
-    var t = e.target.closest('.crate-tile');
-    if (t && e.pointerType === 'mouse' && !picking) showNow(+t.dataset.i);
+    if (e.pointerType === 'mouse') setOn(e.target.closest('.shelf-tile'));
   });
-  grid.addEventListener('pointerleave', function () { if (!picking) showNow(-1); });
+  grid.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') setOn(null); });
   grid.addEventListener('focusin', function (e) {
-    var t = e.target.closest('.crate-tile');
-    if (t && t.matches(':focus-visible')) showNow(+t.dataset.i);
+    var t = e.target.closest('.shelf-tile');
+    if (t && t.matches(':focus-visible')) setOn(t);
   });
-
-  // On the deck: clicking the backdrop puts the record away, a swipe changes it
-  var sx = null, sy = 0;
-  stage.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; });
-  stage.addEventListener('pointerup', function (e) {
-    if (sx === null) return;
-    var dx = e.clientX - sx, dy = e.clientY - sy;
-    sx = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { step(dx < 0 ? 1 : -1); return; }
-    if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && !e.target.closest('.stage-deck, .stage-info')) stop();
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (crate.hidden) return;
-    if (e.key === 'Escape') { if (!stage.hidden) stop(); else closeCrate(); }
-    else if (!stage.hidden && e.key === 'ArrowRight') step(1);
-    else if (!stage.hidden && e.key === 'ArrowLeft') step(-1);
+  grid.addEventListener('focusout', function (e) { if (e.target === on) setOn(null); });
+  // On a touch screen a tap peeks the record, a second tap puts it back
+  grid.addEventListener('click', function (e) {
+    var t = e.target.closest('.shelf-tile');
+    if (!t || e.pointerType === 'mouse') return;
+    setOn(t === on ? null : t);
   });
 })();

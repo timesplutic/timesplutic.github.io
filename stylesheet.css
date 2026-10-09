@@ -441,11 +441,39 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   box-shadow: 0 0.4cqw 1.2cqw rgba(30, 30, 50, 0.08);
 }
 .paper-title {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 2cqw;
   min-height: calc(3 * 1.2 * 4.2cqw + 3.6cqw);
-  padding: 1.8cqw 2.6cqw;
+  padding: 4.6cqw 2.6cqw 2.4cqw;
+  /* A charcoal name plate, like the tags and the plate on the card back */
+  background: linear-gradient(135deg, #2f3139, #1f2026);
+  box-shadow: 0 0.6cqw 1.6cqw rgba(20, 20, 30, 0.25);
+}
+/* Collector number, filled in by script.js */
+.paper-title::before {
+  content: 'No. ' attr(data-no);
+  position: absolute;
+  top: 1.4cqw;
+  left: 2.6cqw;
+  font: 500 2.3cqw/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* Holo foil strip along the bottom, shifting with the tilt like the star */
+.paper-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.9cqw;
+  background: linear-gradient(110deg, #ff7d9a, #ffd36b, #8affb4, #6bd5ff, #b48bff, #ff7d9a);
+  background-size: 300% 100%;
+  background-position: var(--gx, 50%) 0;
+  opacity: 0.9;
 }
 .paper-title h3 {
   flex: 1;
@@ -461,7 +489,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.paper-title a { color: var(--ink); text-decoration: none; }
+.paper-title a { color: #f4f4f6; text-decoration: none; }
 .paper-title a:hover { text-decoration: underline; text-underline-offset: 0.6cqw; }
 .star {
   flex: none;

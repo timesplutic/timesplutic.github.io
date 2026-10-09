@@ -692,7 +692,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   top: 0;
   bottom: 0;
   left: 0;
-  width: 0.9cqw;
+  width: 2.25cqw;
   background: linear-gradient(200deg, #ff7d9a, #ffd36b, #8affb4, #6bd5ff, #b48bff, #ff7d9a);
   background-size: 100% 300%;
   background-position: 0 var(--gy, 50%);

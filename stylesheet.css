@@ -698,7 +698,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   background-position: 0 var(--gy, 50%);
   opacity: 0.9;
 }
-.back-name { margin: 0; font-size: 7.4cqw; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
+.back-name { margin: 0 -0.16em 0 0; font-size: 5.6cqw; font-weight: 400; line-height: 1; letter-spacing: 0.16em; text-transform: uppercase; }
 .back-email { margin: 0; font-family: var(--font-mono); font-size: 2.6cqw; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.7); }
 
 /* Hint line under the enlarged card */

@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=20">
+  <link rel="stylesheet" href="stylesheet.css?v=21">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -173,6 +173,9 @@
               the rigid Attention–FFN split of standard ViTs is an inductive bias that hinders learning at smaller model scales.</p>
               </div>
             </div>
+          </div>
+          <div class="paper-abstract" hidden>
+            <p>The standard Transformer architecture relies on a rigid pattern that alternates Attention and Feed-Forward Network (FFN) layers. Despite its widespread adoption, the inductive bias imposed by this strict separation has not been systematically examined. In this work, we investigate the necessity of the Attention–FFN dichotomy in Vision Transformers (ViTs). To facilitate this analysis, we introduce the AttenFeed module, a unified component that integrates the functional properties of both Attention and FFN. Based on this module, we devise the unified Vision Transformer (uViT), which replaces the conventional alternating Attention–FFN structure with a sequence of AttenFeed modules. We then use uViT as a control group that relaxes the Attention–FFN dichotomy of the standard ViT and systematically compare the two models across multiple datasets and model scales. Our experiments reveal that the Attention–FFN dichotomy can hinder performance at smaller model scales due to the rigid parameter allocation of ViTs. The AttenFeed module and uViT serve as new analytical tools for understanding the Attention–FFN structure and offer theoretical insights into the heuristically designed architecture of conventional ViTs.</p>
           </div>
         </article>
 
@@ -374,7 +377,7 @@
     <p>© Junhyeok Kim</p>
   </footer>
 
-  <script src="script.js?v=16"></script>
+  <script src="script.js?v=17"></script>
 </body>
 
 </html>

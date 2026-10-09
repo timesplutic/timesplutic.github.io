@@ -538,7 +538,8 @@
 
 // ---------- Card view ----------
 // Click or tap a paper card to lift it, enlarged, to the center of the screen.
-// The cursor (or a finger drag on touch screens) tilts it, a click or tap closes it.
+// The cursor (or a finger drag on touch screens) tilts it. Clicking the card
+// flips it over to the abstract, clicking outside the card closes it.
 (function () {
   var touchScreen = window.matchMedia('(hover: none)');
   var papers = document.querySelectorAll('.paper');
@@ -561,7 +562,47 @@
   view.appendChild(hint);
   document.body.appendChild(view);
 
-  var src = null, clone = null, card = null, fig = null, busy = false;
+  var src = null, clone = null, card = null, fig = null, busy = false, flipped = false;
+
+  // The back of the card: title, abstract and a link to the paper
+  function buildBack(paper) {
+    var abs = paper.querySelector('.paper-abstract');
+    if (!abs) return null;
+    var link = paper.querySelector('.paper-title a');
+    var back = document.createElement('div');
+    back.className = 'card-back';
+    var head = document.createElement('div');
+    head.className = 'back-head';
+    head.innerHTML = '<span class="back-label">Abstract</span>';
+    var meta = paper.querySelector('.paper-meta');
+    if (meta) head.appendChild(meta.cloneNode(true));
+    var title = document.createElement('h4');
+    title.className = 'back-title';
+    title.textContent = link ? link.textContent : '';
+    var text = document.createElement('div');
+    text.className = 'back-abstract';
+    text.innerHTML = abs.innerHTML;
+    back.appendChild(head);
+    back.appendChild(title);
+    back.appendChild(text);
+    if (link) {
+      var a = document.createElement('a');
+      a.className = 'back-link';
+      a.href = link.href;
+      a.textContent = 'Read the paper \u2197';
+      back.appendChild(a);
+    }
+    return back;
+  }
+
+  function setFlip(on) {
+    if (!card || !card.querySelector('.card-back')) return;
+    flipped = on;
+    card.classList.add('is-flipping');
+    card.style.setProperty('--flip', on ? '180deg' : '0deg');
+    clearTimeout(card._flipTimer);
+    card._flipTimer = setTimeout(function () { if (card) card.classList.remove('is-flipping'); }, 700);
+  }
 
   function flip(from, to) {
     var dx = (from.left + from.width / 2) - (to.left + to.width / 2);
@@ -571,9 +612,10 @@
 
   function open(paper, viaTouch) {
     if (busy || src) return;
+    var hasBack = !!paper.querySelector('.paper-abstract');
     hint.textContent = viaTouch
-      ? 'drag to tilt \u00b7 tap to close'
-      : 'move to tilt \u00b7 click anywhere to close';
+      ? (hasBack ? 'tap to flip \u00b7 drag to tilt \u00b7 tap outside to close' : 'drag to tilt \u00b7 tap to close')
+      : (hasBack ? 'click card to flip \u00b7 click outside to close' : 'move to tilt \u00b7 click anywhere to close');
     busy = true;
     src = paper;
     clone = paper.cloneNode(true);
@@ -588,6 +630,9 @@
     view.insertBefore(clone, hint);
     card = clone.querySelector('.card');
     fig = clone.querySelector('.paper-fig');
+    flipped = false;
+    var back = buildBack(paper);
+    if (back) card.appendChild(back);
 
     document.documentElement.classList.add('lightbox-open');
     view.hidden = false;
@@ -605,6 +650,7 @@
     if (busy || !src) return;
     busy = true;
     resetTilt();
+    if (flipped) setFlip(false);
     var to = src.querySelector('.card').getBoundingClientRect();
     var from = card.getBoundingClientRect();
     view.classList.remove('is-open');
@@ -669,12 +715,16 @@
     if (e.pointerId !== touchId) return;
     touchId = null;
     if (dragged) { if (e.pointerType !== 'mouse') resetTilt(); return; }
-    if (e.type === 'pointerup' && !e.target.closest('a')) close();
+    if (e.type !== 'pointerup' || e.target.closest('a')) return;
+    // On a card with a back, a click on the card flips it and a click outside closes
+    if (card && card.querySelector('.card-back') && card.contains(e.target)) setFlip(!flipped);
+    else close();
   }
   view.addEventListener('pointerup', endTouch);
   view.addEventListener('pointercancel', endTouch);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
+    else if ((e.key === 'Enter' || e.key === ' ') && src && !busy) { e.preventDefault(); setFlip(!flipped); }
   });
 
   papers.forEach(function (paper) {

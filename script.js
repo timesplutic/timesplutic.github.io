@@ -536,203 +536,17 @@
   });
 })();
 
-// ---------- Figure lightbox ----------
-// Click a paper figure to enlarge it, click anywhere (or press Esc) to put it back.
-// The figure flies from its spot in the card to the center and back again.
-(function () {
-  var figs = document.querySelectorAll('.paper-fig');
-  if (!figs.length) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var touchScreen = window.matchMedia('(hover: none)');
-  var EASE = 'cubic-bezier(.2, .8, .2, 1)';
-
-  var box = document.createElement('div');
-  box.className = 'lightbox';
-  box.hidden = true;
-  box.setAttribute('role', 'dialog');
-  box.setAttribute('aria-modal', 'true');
-  box.setAttribute('aria-label', 'Enlarged figure');
-  var frame = document.createElement('div');
-  frame.className = 'lightbox-frame';
-  var big = document.createElement('img');
-  frame.appendChild(big);
-  var hint = document.createElement('p');
-  hint.className = 'lightbox-hint';
-  hint.textContent = window.matchMedia('(hover: none)').matches
-    ? 'drag to tilt \u00b7 tap to close'
-    : 'click anywhere to close';
-  box.appendChild(frame);
-  box.appendChild(hint);
-  document.body.appendChild(box);
-
-  var current = null, busy = false;
-
-  // Transform that maps the enlarged image back onto the thumbnail's box
-  function flip(from, to) {
-    var dx = (from.left + from.width / 2) - (to.left + to.width / 2);
-    var dy = (from.top + from.height / 2) - (to.top + to.height / 2);
-    var sx = from.width / to.width, sy = from.height / to.height;
-    return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + sx + ', ' + sy + ')';
-  }
-  function frames(start) {
-    return reduce.matches
-      ? [{ transform: 'scale(0.96)', opacity: 0 }, { transform: 'none', opacity: 1 }]
-      : [{ transform: start }, { transform: 'none' }];
-  }
-
-  function open(fig) {
-    if (busy || current) return;
-    var img = fig.querySelector('img');
-    current = fig;
-    busy = true;
-    var card = fig.closest('.paper');
-    if (card) card.dispatchEvent(new PointerEvent('pointerleave'));  // drop any tilt first
-
-    var scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.classList.add('lightbox-open');
-    document.body.style.paddingRight = scrollbar ? scrollbar + 'px' : '';
-
-    frame.classList.toggle('is-holo', !!fig.closest('.paper-featured'));
-    resetTilt();
-    big.alt = img.alt;
-    big.src = img.currentSrc || img.src;
-    box.hidden = false;
-
-    var go = function () {
-      var from = fig.getBoundingClientRect();
-      var to = frame.getBoundingClientRect();
-      // Perspective scales with the frame, so a small phone frame still visibly tilts
-      frame.style.setProperty('--persp', Math.round(Math.max(600, Math.min(1600, to.width * 1.35))) + 'px');
-      fig.classList.add('is-zoomed');
-      box.classList.add('is-open');
-      var anim = frame.animate(frames(flip(from, to)), { duration: reduce.matches ? 200 : 450, easing: EASE });
-      anim.onfinish = function () { busy = false; };
-      box.focus({ preventScroll: true });
-    };
-    if (big.complete && big.naturalWidth) go(); else big.onload = go;
-  }
-
-  function close() {
-    if (busy || !current) return;
-    busy = true;
-    var fig = current;
-    var from = fig.getBoundingClientRect();
-    resetTilt();
-    var to = frame.getBoundingClientRect();
-    box.classList.remove('is-open');
-    var anim = frame.animate(frames(flip(from, to)).reverse(), { duration: reduce.matches ? 180 : 380, easing: EASE, fill: 'forwards' });
-    anim.onfinish = function () {
-      box.hidden = true;
-      anim.cancel();
-      fig.classList.remove('is-zoomed');
-      document.documentElement.classList.remove('lightbox-open');
-      document.body.style.paddingRight = '';
-      current = null;
-      busy = false;
-      fig.focus({ preventScroll: true });
-    };
-  }
-
-  // Same card tilt and glare as in the list, on the enlarged figure
-  var MAX = 8, MAX_TOUCH = 14, tiltRaf = null, tiltEv = null;
-  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
-  function resetTilt() {
-    if (tiltRaf) { cancelAnimationFrame(tiltRaf); tiltRaf = null; }
-    frame.classList.remove('is-tilting');
-    frame.style.setProperty('--rx', '0deg');
-    frame.style.setProperty('--ry', '0deg');
-  }
-  function tilt() {
-    tiltRaf = null;
-    var r = frame.getBoundingClientRect();
-    var clamp = function (v) { return Math.max(-1, Math.min(1, v)); };
-    var nx = clamp((tiltEv.clientX - (r.left + r.width / 2)) / (r.width / 2));
-    var ny = clamp((tiltEv.clientY - (r.top + r.height / 2)) / (r.height / 2));
-    var max = tiltEv.pointerType === 'touch' ? MAX_TOUCH : MAX;
-    frame.style.setProperty('--ry', (nx * max).toFixed(2) + 'deg');
-    frame.style.setProperty('--rx', (-ny * max).toFixed(2) + 'deg');
-    frame.style.setProperty('--gx', pct((tiltEv.clientX - r.left) / r.width));
-    frame.style.setProperty('--gy', pct((tiltEv.clientY - r.top) / r.height));
-  }
-  frame.addEventListener('pointermove', function (e) {
-    if (e.pointerType !== 'mouse' || busy) return;
-    tiltEv = e;
-    frame.classList.add('is-tilting');
-    if (!tiltRaf) tiltRaf = requestAnimationFrame(tilt);
-  });
-  frame.addEventListener('pointerleave', resetTilt);
-
-  // Touch: dragging a finger anywhere on the overlay tilts the figure, a plain
-  // tap still closes it. A second finger (pinch zoom) cancels the tilt.
-  var touchId = null, startX = 0, startY = 0, dragged = false, skipClick = false;
-  box.addEventListener('pointerdown', function (e) {
-    if (e.pointerType !== 'touch' || busy) return;
-    skipClick = false;
-    if (touchId !== null) { touchId = null; dragged = true; resetTilt(); return; }
-    touchId = e.pointerId;
-    startX = e.clientX; startY = e.clientY;
-    dragged = false;
-  });
-  box.addEventListener('pointermove', function (e) {
-    if (e.pointerId !== touchId) return;
-    if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
-    if (!dragged) return;
-    // Like the mouse, the effect only runs while the finger is over the figure
-    var r = frame.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
-      resetTilt();
-      return;
-    }
-    tiltEv = e;
-    frame.classList.add('is-tilting');
-    if (!tiltRaf) tiltRaf = requestAnimationFrame(tilt);
-  });
-  function endTouch(e) {
-    if (e.pointerId !== touchId) return;
-    touchId = null;
-    if (dragged) { skipClick = true; resetTilt(); }
-  }
-  box.addEventListener('pointerup', endTouch);
-  box.addEventListener('pointercancel', endTouch);
-
-  box.tabIndex = -1;
-  box.addEventListener('click', function () {
-    if (skipClick) { skipClick = false; return; }
-    close();
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') close();
-  });
-
-  figs.forEach(function (fig) {
-    fig.setAttribute('role', 'button');
-    fig.setAttribute('tabindex', '0');
-    fig.setAttribute('aria-label', 'Enlarge figure');
-    var hint = document.createElement('span');
-    hint.className = 'fig-hint';
-    hint.setAttribute('aria-hidden', 'true');
-    hint.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Click to enlarge';
-    fig.appendChild(hint);
-    fig.addEventListener('click', function () {
-      if (touchScreen.matches) return;  // on touch screens the whole card opens instead
-      open(fig);
-    });
-    fig.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(fig); }
-    });
-  });
-})();
-
-// ---------- Card view on touch screens ----------
-// Phones have no hover, so tapping a paper card lifts it to the center of the
-// screen. Dragging a finger over the card tilts it like the hover effect, a tap closes it.
+// ---------- Card view ----------
+// Click or tap a paper card to lift it, enlarged, to the center of the screen.
+// The cursor (or a finger drag on touch screens) tilts it, a click or tap closes it.
 (function () {
   var touchScreen = window.matchMedia('(hover: none)');
   var papers = document.querySelectorAll('.paper');
   if (!papers.length) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var EASE = 'cubic-bezier(.2, .8, .2, 1)';
-  var MAX = 16; // degrees
+  var MAX = 16; // degrees, finger drag
+  var MAX_MOUSE = 12;
   var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
 
   var view = document.createElement('div');
@@ -755,18 +569,22 @@
     return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (from.width / to.width) + ')';
   }
 
-  function open(paper) {
+  function open(paper, viaTouch) {
     if (busy || src) return;
+    hint.textContent = viaTouch
+      ? 'drag to tilt \u00b7 tap to close'
+      : 'move to tilt \u00b7 click anywhere to close';
     busy = true;
     src = paper;
     clone = paper.cloneNode(true);
     clone.classList.remove('reveal', 'in');
-    clone.querySelectorAll('.fig-hint').forEach(function (el) { el.remove(); });
+    clone.querySelectorAll('.card-hint').forEach(function (el) { el.remove(); });
     clone.querySelectorAll('[tabindex]').forEach(function (el) {
       el.removeAttribute('tabindex');
       el.removeAttribute('role');
     });
     clone.querySelectorAll('img').forEach(function (img) { img.loading = 'eager'; });
+    paper.dispatchEvent(new PointerEvent('pointerleave'));  // drop the list tilt first
     view.insertBefore(clone, hint);
     card = clone.querySelector('.card');
     fig = clone.querySelector('.paper-fig');
@@ -820,19 +638,17 @@
     startX = e.clientX; startY = e.clientY;
     dragged = false;
   });
-  view.addEventListener('pointermove', function (e) {
-    if (e.pointerId !== touchId || busy) return;
-    if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
-    if (!dragged) return;
+  function tiltTo(e) {
     var r = card.getBoundingClientRect();
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
       resetTilt();
       return;
     }
     var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    var max = e.pointerType === 'mouse' ? MAX_MOUSE : MAX;
     card.classList.add('is-tilting');
-    card.style.setProperty('--ry', ((x - 0.5) * 2 * MAX).toFixed(2) + 'deg');
-    card.style.setProperty('--rx', ((0.5 - y) * 2 * MAX).toFixed(2) + 'deg');
+    card.style.setProperty('--ry', ((x - 0.5) * 2 * max).toFixed(2) + 'deg');
+    card.style.setProperty('--rx', ((0.5 - y) * 2 * max).toFixed(2) + 'deg');
     card.style.setProperty('--gx', pct(x));
     card.style.setProperty('--gy', pct(y));
     if (fig) {
@@ -841,11 +657,18 @@
       fig.style.setProperty('--gx', pct((e.clientX - f.left) / f.width));
       fig.style.setProperty('--gy', pct((e.clientY - f.top) / f.height));
     }
+  }
+  view.addEventListener('pointermove', function (e) {
+    if (busy || !card) return;
+    if (e.pointerType === 'mouse') { tiltTo(e); return; }  // a mouse tilts on hover
+    if (e.pointerId !== touchId) return;
+    if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
+    if (dragged) tiltTo(e);
   });
   function endTouch(e) {
     if (e.pointerId !== touchId) return;
     touchId = null;
-    if (dragged) { resetTilt(); return; }
+    if (dragged) { if (e.pointerType !== 'mouse') resetTilt(); return; }
     if (e.type === 'pointerup' && !e.target.closest('a')) close();
   }
   view.addEventListener('pointerup', endTouch);
@@ -855,9 +678,23 @@
   });
 
   papers.forEach(function (paper) {
+    var src = paper.querySelector('.card');
+    if (!src) return;
+    src.setAttribute('role', 'button');
+    src.setAttribute('tabindex', '0');
+    src.setAttribute('aria-label', 'Enlarge card');
+    var tip = document.createElement('span');
+    tip.className = 'card-hint';
+    tip.setAttribute('aria-hidden', 'true');
+    tip.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Click to enlarge';
+    src.appendChild(tip);
     paper.addEventListener('click', function (e) {
-      if (!touchScreen.matches || e.target.closest('a')) return;
-      open(paper);
+      if (e.target.closest('a')) return;
+      open(paper, e.pointerType ? e.pointerType !== 'mouse' : touchScreen.matches);
+    });
+    src.addEventListener('keydown', function (e) {
+      if (e.target !== src) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(paper, false); }
     });
   });
 })();

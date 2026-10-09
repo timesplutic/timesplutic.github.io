@@ -679,6 +679,30 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 30%, transparent 100%);
   mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 30%, transparent 100%);
 }
+/* First-author cards keep a softer version of the front's foil on the back,
+   on the background only, so the name plate and text stay clean */
+.paper-featured .card-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%),
+    linear-gradient(115deg,
+      #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
+      #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
+  background-size: 300% 100%, 400% 400%;
+  background-position: -30% 0, var(--gx, 50%) var(--gy, 50%);
+  mix-blend-mode: hard-light;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.paper-featured .card:not(.is-tilting) .card-back::before { animation: foil-glint 7s ease-in-out infinite; }
+/* and the holo strip on the plate flows on its own */
+.paper-featured .card:not(.is-tilting) .back-plate::before { animation: strip-flow 4s ease-in-out infinite alternate; }
+@keyframes strip-flow {
+  from { background-position: 0 0%; }
+  to   { background-position: 0 100%; }
+}
 .back-title,
 .back-lab {
   position: absolute;

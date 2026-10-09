@@ -490,12 +490,17 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden && playing) stop(); });
 })();
 
-// ---------- Collector numbers ----------
-// "No. 01 / 10" on each card's title plate, in list order
+// ---------- Card footer ----------
+// "MICV LAB  ●  1/10" along the bottom of each card, numbered in list order
 (function () {
-  var titles = document.querySelectorAll('.paper .paper-title');
-  titles.forEach(function (t, i) {
-    t.dataset.no = (i < 9 ? '0' : '') + (i + 1) + ' / ' + titles.length;
+  var papers = document.querySelectorAll('.paper');
+  papers.forEach(function (paper, i) {
+    var face = paper.querySelector('.card-face');
+    if (!face) return;
+    var foot = document.createElement('p');
+    foot.className = 'card-foot';
+    foot.innerHTML = '<span>MICV LAB</span><span aria-hidden="true">\u25cf</span><span>' + (i + 1) + '/' + papers.length + '</span>';
+    face.appendChild(foot);
   });
 })();
 

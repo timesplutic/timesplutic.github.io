@@ -490,6 +490,15 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden && playing) stop(); });
 })();
 
+// ---------- Collector numbers ----------
+// "No. 01 / 10" on each card's title plate, in list order
+(function () {
+  var titles = document.querySelectorAll('.paper .paper-title');
+  titles.forEach(function (t, i) {
+    t.dataset.no = (i < 9 ? '0' : '') + (i + 1) + ' / ' + titles.length;
+  });
+})();
+
 // ---------- Paper card tilt ----------
 // Each paper card turns toward the cursor like a physical trading card, and
 // eases back when the cursor leaves. Mouse only, so touch scrolling never triggers it.

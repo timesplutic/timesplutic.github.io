@@ -336,12 +336,12 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .section-intro strong { color: var(--text); }
 
 /* ---------- Filters ---------- */
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.filters { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
 .chip {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
-  padding: 7px 14px;
+  padding: 7px 11px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-elev);
@@ -357,7 +357,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   display: inline-block;
   width: 8px;
   height: 8px;
-  margin-right: 7px;
+  margin-right: 6px;
   border-radius: 50%;
   vertical-align: 1px;
   background: var(--dot);
@@ -368,6 +368,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .chip .dot.t-lightning { --dot: #6f9fe0; }
 .chip .dot.t-fire      { --dot: #ec8f5e; }
 .chip .dot.t-grass     { --dot: #67b872; }
+.chip .dot.t-water     { --dot: #c4a46a; }
 
 .legend { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
 

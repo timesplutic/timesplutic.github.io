@@ -437,8 +437,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   position: absolute;
   inset: 0;
   background: linear-gradient(115deg,
-    #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff, #d3a8ff,
-    #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff);
+    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
+    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
   background-size: 400% 400%;
   background-position: var(--gx, 50%) var(--gy, 50%);
   mix-blend-mode: soft-light;
@@ -446,18 +446,20 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
-.paper-featured .card.is-tilting .card-face::before { opacity: 0.6; }
+/* While the card tilts, the foil follows the cursor at the same strength as
+   the resting glint, so it never looks weaker when the card is held */
+.paper-featured .card.is-tilting .card-face::before { mix-blend-mode: hard-light; opacity: 0.7; }
 /* At rest the foil keeps drifting and a light sheen sweeps across it now and
    then, so first-author cards glint even before they are touched */
 .paper-featured .card:not(.is-tilting) .card-face::before {
   background:
-    linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.9) 50%, transparent 58%),
+    linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%),
     linear-gradient(115deg,
-      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff, #d3a8ff,
-      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff);
+      #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
+      #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
   background-size: 300% 100%, 400% 400%;
-  mix-blend-mode: overlay;
-  opacity: 0.85;
+  mix-blend-mode: hard-light;
+  opacity: 0.7;
   animation: foil-glint 7s ease-in-out infinite;
 }
 @keyframes foil-glint {

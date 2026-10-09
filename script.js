@@ -543,6 +543,7 @@
   var figs = document.querySelectorAll('.paper-fig');
   if (!figs.length) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var touchScreen = window.matchMedia('(hover: none)');
   var EASE = 'cubic-bezier(.2, .8, .2, 1)';
 
   var box = document.createElement('div');
@@ -712,9 +713,151 @@
     hint.setAttribute('aria-hidden', 'true');
     hint.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Click to enlarge';
     fig.appendChild(hint);
-    fig.addEventListener('click', function () { open(fig); });
+    fig.addEventListener('click', function () {
+      if (touchScreen.matches) return;  // on touch screens the whole card opens instead
+      open(fig);
+    });
     fig.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(fig); }
+    });
+  });
+})();
+
+// ---------- Card view on touch screens ----------
+// Phones have no hover, so tapping a paper card lifts it to the center of the
+// screen. Dragging a finger over the card tilts it like the hover effect, a tap closes it.
+(function () {
+  var touchScreen = window.matchMedia('(hover: none)');
+  var papers = document.querySelectorAll('.paper');
+  if (!papers.length) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var EASE = 'cubic-bezier(.2, .8, .2, 1)';
+  var MAX = 16; // degrees
+  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
+
+  var view = document.createElement('div');
+  view.className = 'card-view';
+  view.hidden = true;
+  view.setAttribute('role', 'dialog');
+  view.setAttribute('aria-modal', 'true');
+  view.setAttribute('aria-label', 'Paper card');
+  var hint = document.createElement('p');
+  hint.className = 'lightbox-hint';
+  hint.textContent = 'drag to tilt · tap to close';
+  view.appendChild(hint);
+  document.body.appendChild(view);
+
+  var src = null, clone = null, card = null, fig = null, busy = false;
+
+  function flip(from, to) {
+    var dx = (from.left + from.width / 2) - (to.left + to.width / 2);
+    var dy = (from.top + from.height / 2) - (to.top + to.height / 2);
+    return 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (from.width / to.width) + ')';
+  }
+
+  function open(paper) {
+    if (busy || src) return;
+    busy = true;
+    src = paper;
+    clone = paper.cloneNode(true);
+    clone.classList.remove('reveal', 'in');
+    clone.querySelectorAll('.fig-hint').forEach(function (el) { el.remove(); });
+    clone.querySelectorAll('[tabindex]').forEach(function (el) {
+      el.removeAttribute('tabindex');
+      el.removeAttribute('role');
+    });
+    clone.querySelectorAll('img').forEach(function (img) { img.loading = 'eager'; });
+    view.insertBefore(clone, hint);
+    card = clone.querySelector('.card');
+    fig = clone.querySelector('.paper-fig');
+
+    document.documentElement.classList.add('lightbox-open');
+    view.hidden = false;
+    var from = paper.querySelector('.card').getBoundingClientRect();
+    var to = card.getBoundingClientRect();
+    paper.style.visibility = 'hidden';
+    requestAnimationFrame(function () { view.classList.add('is-open'); });
+    var frames = reduce.matches
+      ? [{ opacity: 0, transform: 'scale(0.96)' }, { opacity: 1, transform: 'none' }]
+      : [{ transform: flip(from, to) }, { transform: 'none' }];
+    clone.animate(frames, { duration: 420, easing: EASE }).onfinish = function () { busy = false; };
+  }
+
+  function close() {
+    if (busy || !src) return;
+    busy = true;
+    resetTilt();
+    var to = src.querySelector('.card').getBoundingClientRect();
+    var from = card.getBoundingClientRect();
+    view.classList.remove('is-open');
+    var frames = reduce.matches
+      ? [{ opacity: 1 }, { opacity: 0 }]
+      : [{ transform: 'none' }, { transform: flip(to, from) }];
+    clone.animate(frames, { duration: 360, easing: EASE, fill: 'forwards' }).onfinish = function () {
+      src.style.visibility = '';
+      clone.remove();
+      view.hidden = true;
+      document.documentElement.classList.remove('lightbox-open');
+      src = clone = card = fig = null;
+      busy = false;
+    };
+  }
+
+  function resetTilt() {
+    if (!card) return;
+    card.classList.remove('is-tilting');
+    if (fig) fig.classList.remove('is-tilting');
+    card.style.setProperty('--rx', '0deg');
+    card.style.setProperty('--ry', '0deg');
+  }
+
+  // A drag over the card tilts it, a tap anywhere closes the view
+  var touchId = null, startX = 0, startY = 0, dragged = false;
+  view.addEventListener('pointerdown', function (e) {
+    if (busy) return;
+    if (touchId !== null) return;
+    touchId = e.pointerId;
+    startX = e.clientX; startY = e.clientY;
+    dragged = false;
+  });
+  view.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== touchId || busy) return;
+    if (!dragged && Math.hypot(e.clientX - startX, e.clientY - startY) > 8) dragged = true;
+    if (!dragged) return;
+    var r = card.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+      resetTilt();
+      return;
+    }
+    var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.classList.add('is-tilting');
+    card.style.setProperty('--ry', ((x - 0.5) * 2 * MAX).toFixed(2) + 'deg');
+    card.style.setProperty('--rx', ((0.5 - y) * 2 * MAX).toFixed(2) + 'deg');
+    card.style.setProperty('--gx', pct(x));
+    card.style.setProperty('--gy', pct(y));
+    if (fig) {
+      var f = fig.getBoundingClientRect();
+      fig.classList.add('is-tilting');
+      fig.style.setProperty('--gx', pct((e.clientX - f.left) / f.width));
+      fig.style.setProperty('--gy', pct((e.clientY - f.top) / f.height));
+    }
+  });
+  function endTouch(e) {
+    if (e.pointerId !== touchId) return;
+    touchId = null;
+    if (dragged) { resetTilt(); return; }
+    if (e.type === 'pointerup' && !e.target.closest('a')) close();
+  }
+  view.addEventListener('pointerup', endTouch);
+  view.addEventListener('pointercancel', endTouch);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+
+  papers.forEach(function (paper) {
+    paper.addEventListener('click', function (e) {
+      if (!touchScreen.matches || e.target.closest('a')) return;
+      open(paper);
     });
   });
 })();

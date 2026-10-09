@@ -770,8 +770,9 @@ html.lightbox-open { overflow: hidden; }
 /* Small print along the bottom of the card, under the text box */
 .card-foot {
   flex: none;
-  display: flex;
-  justify-content: space-between;
+  /* Equal side columns keep the dot at the exact center */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   margin: 0;
   padding: 0 0.6cqw;
@@ -779,6 +780,7 @@ html.lightbox-open { overflow: hidden; }
   letter-spacing: 0.1em;
   color: #5d5f68;
 }
+.card-foot span:last-child { text-align: right; }
 
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 0; }
 

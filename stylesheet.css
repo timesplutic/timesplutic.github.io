@@ -457,7 +457,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
       #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff);
   background-size: 300% 100%, 400% 400%;
   mix-blend-mode: overlay;
-  opacity: 0.7;
+  opacity: 0.85;
   animation: foil-glint 7s ease-in-out infinite;
 }
 @keyframes foil-glint {

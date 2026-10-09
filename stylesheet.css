@@ -447,6 +447,24 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   pointer-events: none;
 }
 .paper-featured .card.is-tilting .card-face::before { opacity: 0.6; }
+/* At rest the foil keeps drifting and a light sheen sweeps across it now and
+   then, so first-author cards glint even before they are touched */
+.paper-featured .card:not(.is-tilting) .card-face::before {
+  background:
+    linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.9) 50%, transparent 58%),
+    linear-gradient(115deg,
+      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff, #d3a8ff,
+      #ff9ec7, #ffc48a, #fff08a, #a8f5b8, #8fe3ff, #9fb4ff);
+  background-size: 300% 100%, 400% 400%;
+  mix-blend-mode: overlay;
+  opacity: 0.7;
+  animation: foil-glint 7s ease-in-out infinite;
+}
+@keyframes foil-glint {
+  0%   { background-position: 130% 0, 0% 0%; }
+  35%  { background-position: -30% 0, 50% 50%; }
+  100% { background-position: -30% 0, 100% 100%; }
+}
 .card-face > * { position: relative; }
 
 .paper-title,

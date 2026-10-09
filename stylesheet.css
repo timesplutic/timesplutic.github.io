@@ -341,7 +341,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   font-family: var(--font-body);
   font-size: 13.5px;
   font-weight: 500;
-  padding: 7px 11px;
+  padding: 7px 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-elev);
@@ -369,6 +369,12 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .chip .dot.t-fire      { --dot: #ec8f5e; }
 .chip .dot.t-grass     { --dot: #67b872; }
 .chip .dot.t-water     { --dot: #c4a46a; }
+/* First author: a rainbow dot that keeps turning, like the holo cards */
+.chip .dot.dot-holo {
+  background: conic-gradient(#ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff, #ff5fa2);
+  animation: dot-spin 3s linear infinite;
+}
+@keyframes dot-spin { to { transform: rotate(360deg); } }
 
 .legend { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
 

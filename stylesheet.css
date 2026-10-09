@@ -635,6 +635,30 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 }
 html.lightbox-open { overflow: hidden; }
 
+/* ---------- Card view (touch screens) ---------- */
+.card-view {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px 56px;
+  background: rgba(10, 10, 14, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.card-view[hidden] { display: none; }
+.card-view.is-open { opacity: 1; }
+.card-view .paper {
+  width: min(100%, 420px, calc((100vh - 100px) * 63 / 88));
+  width: min(100%, 420px, calc((100dvh - 100px) * 63 / 88));
+  perspective: 900px;
+}
+@media (hover: none) { .paper .card { cursor: pointer; } }
+
 .paper-body {
   flex: 1;
   min-height: 0;

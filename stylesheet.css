@@ -1141,9 +1141,10 @@ html.lightbox-open { overflow: hidden; }
 .wip-label {
   position: absolute;
   z-index: 3;
-  left: 30%;
-  right: 8%;
-  top: 58%;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   margin: 0;
   display: grid;
   justify-items: center;
@@ -1159,9 +1160,9 @@ html.lightbox-open { overflow: hidden; }
 .card-view .wip-label {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translateZ(1.5px);
+  transform: translateY(-50%) translateZ(1.5px);
 }
-.card-view .wip-label-back { visibility: visible; transform: rotateY(180deg) translateZ(1.5px); }
+.card-view .wip-label-back { visibility: visible; transform: translateY(-50%) rotateY(180deg) translateZ(1.5px); }
 /* the enlarged view sits on a dark backdrop, so the outline and text go light */
 .card-view .wip-ghost { border-color: rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.05); }
 .card-view .wip-label { color: rgba(255, 255, 255, 0.8); }

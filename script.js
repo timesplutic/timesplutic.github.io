@@ -514,7 +514,10 @@
 // Papers marked "wip" get a dashed, see-through outline over the unprinted part
 (function () {
   document.querySelectorAll('.paper.wip .card').forEach(function (card) {
-    card.insertAdjacentHTML('beforeend', '<div class="wip-ghost" aria-hidden="true"></div>');
+    card.insertAdjacentHTML('beforeend',
+      '<div class="wip-ghost" aria-hidden="true"></div>' +
+      '<p class="wip-label"><b>IN PROGRESS</b><span>Under review</span></p>' +
+      '<p class="wip-label wip-label-back" aria-hidden="true"><b>IN PROGRESS</b><span>Under review</span></p>');
   });
 })();
 

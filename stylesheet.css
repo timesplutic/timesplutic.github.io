@@ -1155,14 +1155,9 @@ html.lightbox-open { overflow: hidden; }
 }
 .wip-label b { font: 500 4.6cqw/1 var(--font-mono); letter-spacing: 0.24em; margin-right: -0.24em; }
 .wip-label span { font: 400 3.2cqw/1 var(--font-mono); letter-spacing: 0.16em; margin-right: -0.16em; opacity: 0.8; }
-.wip-label-back { visibility: hidden; }
-/* Enlarged: each label shows on its own side only */
-.card-view .wip-label {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform: translateY(-50%) translateZ(1.5px);
-}
-.card-view .wip-label-back { visibility: visible; transform: translateY(-50%) rotateY(180deg) translateZ(1.5px); }
+/* Enlarged: the label turns with the card, so from behind it reads mirrored,
+   as if seen through the see-through part */
+.card-view .wip-label { transform: translateY(-50%) translateZ(1.5px); }
 /* the enlarged view sits on a dark backdrop, so the outline and text go light */
 .card-view .wip-ghost { border-color: rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.05); }
 .card-view .wip-label { color: rgba(255, 255, 255, 0.8); }

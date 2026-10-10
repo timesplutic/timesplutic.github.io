@@ -55,7 +55,8 @@
   chips.forEach(function (chip) {
     var f = chip.getAttribute('data-filter');
     var n = 0;
-    papers.forEach(function (p) { if (matches(p, f)) n++; });
+    // in-progress cards are shown but not counted
+    papers.forEach(function (p) { if (!p.classList.contains('wip') && matches(p, f)) n++; });
     chip.querySelector('.count').textContent = n;
 
     chip.addEventListener('click', function () {
@@ -497,9 +498,10 @@
 })();
 
 // ---------- Card footer ----------
-// "MICV LAB  ●  1/10" along the bottom of each card, numbered in list order
+// "MICV LAB  ●  1/10" along the bottom of each card, numbered in list order.
+// In-progress cards are left out of the numbering and the total.
 (function () {
-  var papers = document.querySelectorAll('.paper');
+  var papers = document.querySelectorAll('.paper:not(.wip)');
   papers.forEach(function (paper, i) {
     var face = paper.querySelector('.card-face');
     if (!face) return;

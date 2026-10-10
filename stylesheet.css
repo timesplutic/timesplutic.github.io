@@ -469,10 +469,14 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   opacity: 0.7;
   animation: foil-glint 7s ease-in-out infinite;
 }
+/* The foil drifts out and back so the loop ends where it starts. The sheen
+   sweeps once early on, then waits off the card (its jump back at the loop
+   point happens out of sight) */
 @keyframes foil-glint {
   0%   { background-position: 130% 0, 0% 0%; }
-  35%  { background-position: -30% 0, 50% 50%; }
-  100% { background-position: -30% 0, 100% 100%; }
+  30%  { background-position: -30% 0, 60% 60%; }
+  50%  { background-position: -30% 0, 100% 100%; }
+  100% { background-position: -30% 0, 0% 0%; }
 }
 .card-face > * { position: relative; }
 
@@ -716,7 +720,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   background-clip: text;
   color: transparent;
 }
-.paper-featured .card:not(.is-tilting) .back-name { animation: name-foil 6s linear infinite; }
+.paper-featured .card:not(.is-tilting) .back-name { animation: name-foil 6s ease-in-out infinite alternate; }
 @keyframes name-foil {
   from { background-position: 0% 0; }
   to   { background-position: 100% 0; }

@@ -739,11 +739,6 @@
     if (card && card.contains(e.target)) setFlip(!flipped);
     else close();
   }
-  // A mouse that leaves the window lays the card flat again. Left tilted and
-  // still, the browser can redraw the card at a lower resolution after a moment.
-  view.addEventListener('pointerleave', function (e) {
-    if (e.pointerType === 'mouse' && card && !busy) resetTilt();
-  });
   view.addEventListener('pointerup', endTouch);
   view.addEventListener('pointercancel', endTouch);
   document.addEventListener('keydown', function (e) {

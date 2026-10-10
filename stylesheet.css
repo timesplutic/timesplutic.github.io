@@ -1110,8 +1110,8 @@ html.lightbox-open { overflow: hidden; }
 
 /* ---------- In-progress cards ----------
    A paper still under way is only printed in its top-left corner, cut at 45
-   degrees through the first third of the top edge (from 33.33cqw on the top
-   edge to 33.33cqw on the left edge). The rest of the card is a faint, see-through shape
+   degrees through the point two thirds along the top edge (from 66.67cqw on
+   the top edge to 66.67cqw on the left edge). The rest of the card is a faint, see-through shape
    with a dashed edge. The back is cut the same way, as the same piece of card. */
 .wip .card,
 .paper.wip:hover .card { background: none; box-shadow: none; }
@@ -1122,12 +1122,12 @@ html.lightbox-open { overflow: hidden; }
   border-radius: inherit;
   background: linear-gradient(135deg, #f7f8fa, #c3c7cf 45%, #eef0f3 55%, #b9bdc6);
   box-shadow: inset 0 0 0 0.35cqw rgba(255, 255, 255, 0.7);
-  clip-path: polygon(0 0, 33.33cqw 0, 0 33.33cqw);
+  clip-path: polygon(0 0, 66.67cqw 0, 0 66.67cqw);
 }
 /* the face sits 2.6cqw inside the card, so its cut is shifted by that much */
-.wip .card-face { clip-path: polygon(0 0, 28.13cqw 0, 0 28.13cqw); }
+.wip .card-face { clip-path: polygon(0 0, 61.47cqw 0, 0 61.47cqw); }
 /* the back sits 2cqw inside and is turned around, so the same corner is its top right */
-.wip .card-back { clip-path: polygon(calc(100% - 29.33cqw) 0, 100% 0, 100% 29.33cqw); }
+.wip .card-back { clip-path: polygon(calc(100% - 62.67cqw) 0, 100% 0, 100% 62.67cqw); }
 .wip-ghost {
   position: absolute;
   inset: 0;
@@ -1135,7 +1135,7 @@ html.lightbox-open { overflow: hidden; }
   border-radius: inherit;
   border: 0.55cqw dashed color-mix(in srgb, var(--text-muted) 85%, transparent);
   background: color-mix(in srgb, var(--text-muted) 6%, transparent);
-  clip-path: polygon(33.33cqw 0, 100% 0, 100% 100%, 0 100%, 0 33.33cqw);
+  clip-path: polygon(66.67cqw 0, 100% 0, 100% 100%, 0 100%, 0 66.67cqw);
   pointer-events: none;
 }
 .wip-label {

@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=43">
+  <link rel="stylesheet" href="stylesheet.css?v=44">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -165,13 +165,14 @@
         <article class="paper t-psychic paper-featured reveal" data-tags="first interp">
           <div class="card">
             <div class="card-face">
-              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2610.10303">On the Necessity of Attention–FFN Split in Vision Transformers</a></h3><span class="star" aria-label="First author" title="First author">★</span></div>
-              <div class="paper-fig"><img src="images/figs/uvit.png" alt="Standard Transformer layer versus unified Transformer layer with AttenFeed" loading="lazy"></div>
+              <div class="paper-title"><h3>ViT Attention Weight as a Hierarchical Tree</h3><span class="star" aria-label="First author" title="First author">★</span></div>
+              <div class="paper-fig"><img src="images/figs/jobcard.png" alt="Role card of a QK tree node, showing its query and key heatmaps and most activated patches" loading="lazy"></div>
               <div class="paper-body">
-                <div class="paper-meta"><span class="venue">arXiv 2026</span><span class="first-badge">First author</span></div>
-                <p class="authors"><strong>Junhyeok Kim</strong>, Jinyeong Kim, Jae Wan Park, Seong Jae Hwang</p>
-                <p class="desc">AttenFeed unifies Attention and FFN into a single module. Building a ViT entirely from it (uViT) reveals that
-              the rigid Attention–FFN split of standard ViTs is an inductive bias that hinders learning at smaller model scales.</p>
+                <div class="paper-meta"><span class="first-badge">First author</span></div>
+                <p class="authors"><strong>Junhyeok Kim</strong>, Minseo Kim, Seil Kang, Youngmin Kim, Seong Jae Hwang</p>
+                <p class="desc">Splitting ViT attention into individual query-key features organizes each head into a QK tree,
+              whose nodes carry consistent semantic roles. A single object-centric node alone gives
+              simple and effective object localization.</p>
               </div>
             </div>
           </div>
@@ -203,6 +204,21 @@
                 <p class="authors">Seil Kang, Woojung Han, <strong>Junhyeok Kim</strong>, Jinyeong Kim, Youngeun Kim, Seong Jae Hwang</p>
                 <p class="desc">vSTREAM enables real-time, faithful visual attribution streaming in multimodal reasoning models
               by amortizing causal effect estimation from attention features.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper t-psychic paper-featured reveal" data-tags="first interp">
+          <div class="card">
+            <div class="card-face">
+              <div class="paper-title"><h3><a href="https://arxiv.org/abs/2610.10303">On the Necessity of Attention–FFN Split in Vision Transformers</a></h3><span class="star" aria-label="First author" title="First author">★</span></div>
+              <div class="paper-fig"><img src="images/figs/uvit.png" alt="Standard Transformer layer versus unified Transformer layer with AttenFeed" loading="lazy"></div>
+              <div class="paper-body">
+                <div class="paper-meta"><span class="venue">arXiv 2026</span><span class="first-badge">First author</span></div>
+                <p class="authors"><strong>Junhyeok Kim</strong>, Jinyeong Kim, Jae Wan Park, Seong Jae Hwang</p>
+                <p class="desc">AttenFeed unifies Attention and FFN into a single module. Building a ViT entirely from it (uViT) reveals that
+              the rigid Attention–FFN split of standard ViTs is an inductive bias that hinders learning at smaller model scales.</p>
               </div>
             </div>
           </div>

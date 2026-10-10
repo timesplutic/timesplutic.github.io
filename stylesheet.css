@@ -706,6 +706,20 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .paper-featured .card:not(.is-tilting) .card-back::before { animation: foil-glint 7s ease-in-out infinite; }
 /* and the holo strip on the plate flows on its own */
 .paper-featured .card:not(.is-tilting) .back-plate::before { animation: strip-flow 4s ease-in-out infinite alternate; }
+/* and the name on the plate turns to holo foil, like the star on the front */
+.paper-featured .back-name {
+  background: linear-gradient(110deg, #ff9ec7, #ffd36b, #a8f5b8, #8fe3ff, #c3a8ff, #ff9ec7, #ffd36b, #a8f5b8);
+  background-size: 300% 100%;
+  background-position: var(--gx, 50%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.paper-featured .card:not(.is-tilting) .back-name { animation: name-foil 6s linear infinite; }
+@keyframes name-foil {
+  from { background-position: 0% 0; }
+  to   { background-position: 100% 0; }
+}
 @keyframes strip-flow {
   from { background-position: 0 0%; }
   to   { background-position: 0 100%; }

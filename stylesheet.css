@@ -379,7 +379,16 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .legend { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
 
 /* ---------- Papers: trading cards ---------- */
-.papers { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px 24px; }
+/* Columns drop only when a card would get narrower than 250px, so cards never
+   jump to a big size right after a drop. A single column stays at most 400px. */
+.papers { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 28px 24px; }
+/* On wide screens the card grid reaches out past the text column to fit 4 */
+@media (min-width: 1250px) {
+  .papers { margin-inline: calc((min(1240px, 100vw - 48px) - 100%) / -2); }
+}
+@media (max-width: 575px) {
+  .papers { grid-template-columns: minmax(0, 400px); justify-content: center; }
+}
 
 /* Each paper is a card. Its print colors stay the same in both themes, like a
    physical card. All sizes inside use cqw so text scales with the card. */
@@ -1177,7 +1186,6 @@ html.lightbox-open { overflow: hidden; }
   .nav-inner { padding: 12px 16px; }
   .nav-links a { padding: 6px 8px; font-size: 13px; }
   .section { padding: 48px 0; }
-  .papers { grid-template-columns: minmax(0, 400px); justify-content: center; }
   .misc-grid { grid-template-columns: 1fr; }
   .misc-music { padding: 18px 16px; }
   .drum-bpm { order: 1; flex-basis: 100%; }

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://timesplutic.github.io/sitemap.xml

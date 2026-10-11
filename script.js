@@ -47,15 +47,17 @@
   var papers = document.querySelectorAll('.paper');
   var empty = document.getElementById('empty-state');
 
+  // in-progress cards only show under "All"
   function matches(paper, filter) {
     if (filter === 'all') return true;
+    if (paper.classList.contains('wip')) return false;
     return (paper.getAttribute('data-tags') || '').split(/\s+/).indexOf(filter) !== -1;
   }
 
   chips.forEach(function (chip) {
     var f = chip.getAttribute('data-filter');
     var n = 0;
-    // in-progress cards are shown but not counted
+    // in-progress cards are not counted, not even under "All"
     papers.forEach(function (p) { if (!p.classList.contains('wip') && matches(p, f)) n++; });
     chip.querySelector('.count').textContent = n;
 

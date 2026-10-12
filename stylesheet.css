@@ -20,9 +20,6 @@
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
   --shadow-hover: 0 2px 4px rgba(20, 20, 30, 0.06), 0 16px 40px rgba(20, 20, 30, 0.12);
   --paper-shadow: 0 4px 10px rgba(20, 20, 30, 0.06), 0 18px 44px rgba(20, 20, 30, 0.14);
-  /* The same two shadows as filters, for shapes cut out with clip-path */
-  --shadow-drop: drop-shadow(0 1px 2px rgba(20, 20, 30, 0.04)) drop-shadow(0 8px 24px rgba(20, 20, 30, 0.06));
-  --paper-drop: drop-shadow(0 4px 10px rgba(20, 20, 30, 0.06)) drop-shadow(0 18px 44px rgba(20, 20, 30, 0.14));
   --cell: 26, 26, 31;
 
   --font-display: 'Instrument Serif', Georgia, serif;
@@ -50,8 +47,6 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
     --paper-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 36px rgba(255, 255, 255, 0.12);
-    --shadow-drop: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
-    --paper-drop: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3)) drop-shadow(0 8px 36px rgba(255, 255, 255, 0.12));
     --cell: 236, 236, 241;
     color-scheme: dark;
   }
@@ -72,8 +67,6 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
   --paper-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 36px rgba(255, 255, 255, 0.12);
-  --shadow-drop: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
-  --paper-drop: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3)) drop-shadow(0 8px 36px rgba(255, 255, 255, 0.12));
   --cell: 236, 236, 241;
   color-scheme: dark;
 }
@@ -815,9 +808,9 @@ html.lightbox-open { overflow: hidden; }
   display: grid;
   place-items: center;
   padding: 24px 16px 56px;
-  background: rgba(10, 10, 14, 0.72);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  /* A plain dim, no backdrop blur: blurring the whole page again on every
+     frame of a tilt or flip made the enlarged card stutter */
+  background: rgba(10, 10, 14, 0.84);
   touch-action: none;
   opacity: 0;
   transition: opacity 0.35s ease;
@@ -1131,11 +1124,6 @@ html.lightbox-open { overflow: hidden; }
    with a dashed edge. The back is cut the same way, as the same piece of card. */
 .wip .card,
 .paper.wip:hover .card { background: none; box-shadow: none; }
-/* A box-shadow would outline the whole card, so the printed corner gets the
-   same shadow as a filter instead, following its cut edge. Only in the list:
-   a filter would flatten the 3D flip of the enlarged card. */
-.papers .wip .card { filter: var(--shadow-drop); transition: transform 0.7s cubic-bezier(.2, .8, .2, 1), filter 0.6s ease; }
-.papers .paper.wip:hover .card { filter: var(--paper-drop); }
 .wip .card::before { /* the silver frame, printed part only, seen from both sides */
   content: '';
   position: absolute;

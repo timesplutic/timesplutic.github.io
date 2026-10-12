@@ -28,8 +28,12 @@
 
   --radius: 16px;
   --maxw: 1040px;
-  color-scheme: light;
+  /* The page has its own dark theme, so it says it supports both. Browsers with
+     a forced dark mode (like Samsung Internet) then use that theme instead of
+     recoloring the light one on their own. */
+  color-scheme: light dark;
 }
+:root[data-theme="light"] { color-scheme: light; }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {

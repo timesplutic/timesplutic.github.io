@@ -935,3 +935,25 @@ document.addEventListener('click', function (e) {
   var text = a.textContent.replace(/\s+/g, ' ').trim();
   track('out/' + a.hostname + a.pathname.replace(/\/$/, ''), 'Link: ' + (text || a.hostname));
 });
+
+// ---------- Time on page ----------
+// When a visitor leaves (closes the tab, switches away or locks the phone),
+// sends how long the page was actually on screen, as one of a few ranges.
+// Sent once per visit, so coming back to the tab later is not added.
+(function () {
+  var RANGES = [[10, '0-10s'], [30, '10-30s'], [60, '30s-1m'], [180, '1-3m'], [600, '3-10m']];
+  var shown = 0, since = document.visibilityState === 'visible' ? Date.now() : null, sent = false;
+  function send() {
+    if (sent) return;
+    sent = true;
+    if (since !== null) shown += Date.now() - since;
+    var secs = shown / 1000, label = '10m+';
+    for (var i = 0; i < RANGES.length; i++) if (secs < RANGES[i][0]) { label = RANGES[i][1]; break; }
+    track('time/' + label, 'Time on page: ' + label);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') send();
+    else if (since === null) since = Date.now();  // first shown after opening in the background
+  });
+  window.addEventListener('pagehide', send);
+})();

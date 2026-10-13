@@ -100,11 +100,21 @@
     grid.appendChild(frag);
   }
 
+  // Attention is colored with the viridis colormap: purple where it is weak,
+  // through blue, teal and green, to yellow where it is strongest
+  var VIRIDIS = [[68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
+                 [39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37]];
+  function viridis(a) {
+    var t = a * (VIRIDIS.length - 1), i = Math.min(VIRIDIS.length - 2, Math.floor(t)), f = t - i;
+    var c0 = VIRIDIS[i], c1 = VIRIDIS[i + 1];
+    return 'rgba(' + Math.round(c0[0] + (c1[0] - c0[0]) * f) + ', ' + Math.round(c0[1] + (c1[1] - c0[1]) * f) + ', ' +
+      Math.round(c0[2] + (c1[2] - c0[2]) * f) + ', ' + (0.2 + 0.8 * a).toFixed(2) + ')';
+  }
+
   function paint(cx, cy, spread) {
     var rect = grid.getBoundingClientRect();
     var cw = rect.width / cols;
     var ch = rect.height / rows;
-    var accent = getComputedStyle(root).getPropertyValue('--accent').trim() || '#ff5b3a';
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
         var x = rect.left + (c + 0.5) * cw;
@@ -114,7 +124,7 @@
         var el = cells[r * cols + c];
         if (a > 0.04) {
           el.classList.add('hot');
-          el.style.backgroundColor = 'color-mix(in srgb, ' + accent + ' ' + Math.round(a * 85) + '%, transparent)';
+          el.style.backgroundColor = viridis(a);
         } else if (el.classList.contains('hot')) {
           el.classList.remove('hot');
           el.style.backgroundColor = '';

@@ -878,3 +878,28 @@
     setOn(t === on ? null : t);
   });
 })();
+
+// ---------- Email button ----------
+// Copies the address instead of opening a mail app, which most people don't
+// have set up. If the copy fails, the link opens the mail app as before.
+(function () {
+  var btn = document.getElementById('email-btn');
+  if (!btn || !navigator.clipboard) return;
+  var label = btn.querySelector('.btn-label');
+  var address = btn.getAttribute('href').replace('mailto:', '');
+  var timer;
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    navigator.clipboard.writeText(address).then(function () {
+      label.textContent = 'Copied!';
+      btn.classList.add('is-copied');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        label.textContent = 'Email';
+        btn.classList.remove('is-copied');
+      }, 1800);
+    }, function () {
+      window.location.href = 'mailto:' + address;
+    });
+  });
+})();

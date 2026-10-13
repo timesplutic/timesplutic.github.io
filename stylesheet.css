@@ -303,6 +303,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 }
 .btn-primary { background: var(--btn-grad); border-color: transparent; color: var(--on-accent); }
 .btn-primary:hover { color: var(--on-accent); border-color: transparent; }
+/* Keeps its width while the label reads "Copied!" */
+.btn-primary .btn-label { display: inline-block; min-width: 4.2em; text-align: center; }
 
 .hero-photo { position: relative; }
 .photo-frame {

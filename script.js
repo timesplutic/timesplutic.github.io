@@ -4,6 +4,22 @@
  * Copyright (c) 2026 Junhyeok Kim. All rights reserved.
  * Do not copy or reuse without permission. See LICENSE.
  */
+
+// ---------- Visit stats ----------
+// Counts a few interactions as GoatCounter events, seen only on the private
+// dashboard. Does nothing if the counter is blocked or not loaded yet.
+function track(path, title) {
+  var gc = window.goatcounter;
+  if (!gc || !gc.count) return;
+  gc.count({ path: path, title: title || path, event: true });
+}
+function slug(text) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+}
+function paperTitle(paper) {
+  var h = paper && paper.querySelector('.paper-title h3');
+  return h ? h.textContent.replace(/\s+/g, ' ').trim() : 'paper';
+}
 (function () {
   var root = document.documentElement;
   root.classList.add('js');
@@ -21,6 +37,7 @@
     var next = currentTheme() === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
+    track('theme/' + next, 'Theme: ' + next);
   });
 
   // ---------- Nav border on scroll ----------
@@ -62,6 +79,7 @@
     chip.querySelector('.count').textContent = n;
 
     chip.addEventListener('click', function () {
+      track('filter/' + f, 'Filter: ' + f);
       chips.forEach(function (c) { c.classList.remove('is-active'); });
       chip.classList.add('is-active');
       var shown = 0;
@@ -467,6 +485,7 @@
     nextTime = ctx.currentTime + 0.05;
     root.classList.add('is-playing');
     playBtn.setAttribute('aria-label', 'Stop');
+    track('drum/play', 'Drum machine: play');
     schedule();
     requestAnimationFrame(draw);
   }
@@ -630,6 +649,7 @@
     if (!card || on === flipped) return;
     flipped = on;
     turns++;
+    if (on) track('card-flip/' + slug(paperTitle(src)), 'Card flipped: ' + paperTitle(src));
     card.classList.add('is-flipping');
     card.style.setProperty('--flip', (-180 * turns) + 'deg');
     clearTimeout(card._flipTimer);
@@ -644,6 +664,7 @@
 
   function open(paper, viaTouch) {
     if (busy || src) return;
+    track('card/' + slug(paperTitle(paper)), 'Card: ' + paperTitle(paper));
     hint.textContent = viaTouch
       ? 'tap to flip \u00b7 drag to tilt \u00b7 tap outside to close'
       : 'click card to flip \u00b7 click outside to close';
@@ -828,6 +849,7 @@
 
   function open(y) {
     clearTimeout(closeTimer);
+    track('music/' + y, 'Albums: ' + y);
     render(y);
     shelf.classList.add('is-open');
   }
@@ -892,6 +914,7 @@
     e.preventDefault();
     navigator.clipboard.writeText(address).then(function () {
       label.textContent = 'Copied!';
+      track('email/copy', 'Email copied');
       btn.classList.add('is-copied');
       clearTimeout(timer);
       timer = setTimeout(function () {
@@ -903,3 +926,12 @@
     });
   });
 })();
+
+// ---------- Outbound links ----------
+// Which links lead people off the site (Scholar, LinkedIn, GitHub, papers)
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href]');
+  if (!a || !/^https?:$/.test(a.protocol) || a.host === location.host) return;
+  var text = a.textContent.replace(/\s+/g, ' ').trim();
+  track('out/' + a.hostname + a.pathname.replace(/\/$/, ''), 'Link: ' + (text || a.hostname));
+});

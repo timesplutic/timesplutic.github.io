@@ -6,12 +6,19 @@
  */
 
 // ---------- Visit stats ----------
-// Counts a few interactions as GoatCounter events, seen only on the private
-// dashboard. Does nothing if the counter is blocked or not loaded yet.
+// Counts a few interactions as GoatCounter events, seen only on a private
+// dashboard. They go to a separate site (timesplutic-events), so the visitor
+// stats of the main site only count real visits. Skipped in browsers where
+// counting was turned off with #toggle-goatcounter, and on local copies.
+var EVENTS_URL = 'https://timesplutic-events.goatcounter.com/count';
 function track(path, title) {
-  var gc = window.goatcounter;
-  if (!gc || !gc.count) return;
-  gc.count({ path: path, title: title || path, event: true });
+  try { if (localStorage.getItem('skipgc') === 't') return; } catch (e) {}
+  if (navigator.webdriver || !/\.github\.io$/.test(location.hostname)) return;
+  var url = EVENTS_URL + '?e=true&p=' + encodeURIComponent(path) + '&t=' + encodeURIComponent(title || path) +
+    '&s=' + [screen.width, screen.height, window.devicePixelRatio || 1].join(',') + '&rnd=' + Math.random().toString(36).slice(2);
+  // A beacon still goes out while the page is closing (time on page)
+  if (navigator.sendBeacon && navigator.sendBeacon(url)) return;
+  new Image().src = url;
 }
 function slug(text) {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);

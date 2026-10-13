@@ -11,12 +11,16 @@
   --text: #1a1a1f;
   --text-muted: #5f5f6b;
   --border: #e3e0d8;
-  --accent: #ff5b3a;
-  --accent-soft: rgba(255, 91, 58, 0.12);
-  --accent-2: #3a6bff;
-  --accent-2-soft: rgba(58, 107, 255, 0.12);
-  --accent-3: #11a37f;
-  --mark: rgba(255, 91, 58, 0.18);
+  /* Colors from the viridis colormap */
+  --accent: #21918c;
+  --accent-soft: rgba(33, 145, 140, 0.12);
+  --accent-2: #3b528b;
+  --accent-2-soft: rgba(59, 82, 139, 0.12);
+  --accent-3: #5ec962;
+  --mark: rgba(94, 201, 98, 0.28);
+  --accent-grad: linear-gradient(90deg, #3b528b, #21918c 50%, #5ec962);
+  --btn-grad: linear-gradient(90deg, #3b528b, #21918c);
+  --on-accent: #fff;
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
   --shadow-hover: 0 2px 4px rgba(20, 20, 30, 0.06), 0 16px 40px rgba(20, 20, 30, 0.12);
   --paper-shadow: 0 4px 10px rgba(20, 20, 30, 0.06), 0 18px 44px rgba(20, 20, 30, 0.14);
@@ -42,12 +46,15 @@
     --text: #ececf1;
     --text-muted: #9a9aa8;
     --border: #2a2b33;
-    --accent: #ff7a5c;
-    --accent-soft: rgba(255, 122, 92, 0.15);
-    --accent-2: #7c9dff;
-    --accent-2-soft: rgba(124, 157, 255, 0.15);
-    --accent-3: #3ccf9f;
-    --mark: rgba(255, 122, 92, 0.25);
+    --accent: #35b779;
+    --accent-soft: rgba(53, 183, 121, 0.15);
+    --accent-2: #6f8fd8;
+    --accent-2-soft: rgba(111, 143, 216, 0.15);
+    --accent-3: #c8e020;
+    --mark: rgba(53, 183, 121, 0.28);
+    --accent-grad: linear-gradient(90deg, #31688e, #35b779 50%, #fde725);
+    --btn-grad: linear-gradient(90deg, #21918c, #5ec962);
+    --on-accent: #0e0f13;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
     --paper-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 36px rgba(255, 255, 255, 0.12);
@@ -62,12 +69,15 @@
   --text: #ececf1;
   --text-muted: #9a9aa8;
   --border: #2a2b33;
-  --accent: #ff7a5c;
-  --accent-soft: rgba(255, 122, 92, 0.15);
-  --accent-2: #7c9dff;
-  --accent-2-soft: rgba(124, 157, 255, 0.15);
-  --accent-3: #3ccf9f;
-  --mark: rgba(255, 122, 92, 0.25);
+  --accent: #35b779;
+  --accent-soft: rgba(53, 183, 121, 0.15);
+  --accent-2: #6f8fd8;
+  --accent-2-soft: rgba(111, 143, 216, 0.15);
+  --accent-3: #c8e020;
+  --mark: rgba(53, 183, 121, 0.28);
+  --accent-grad: linear-gradient(90deg, #31688e, #35b779 50%, #fde725);
+  --btn-grad: linear-gradient(90deg, #21918c, #5ec962);
+  --on-accent: #0e0f13;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
   --paper-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 36px rgba(255, 255, 255, 0.12);
@@ -227,7 +237,14 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   letter-spacing: -0.02em;
   margin: 0 0 24px;
 }
-.name em { color: var(--accent); }
+/* The last name runs along the viridis colormap */
+.name em {
+  padding-right: 0.08em;  /* room for the italic overhang, so it is not clipped */
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 .lead { font-size: 17px; margin: 0 0 20px; }
 
@@ -284,8 +301,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   border-color: var(--accent);
   box-shadow: var(--shadow);
 }
-.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn-primary:hover { color: #fff; }
+.btn-primary { background: var(--btn-grad); border-color: transparent; color: var(--on-accent); }
+.btn-primary:hover { color: var(--on-accent); border-color: transparent; }
 
 .hero-photo { position: relative; }
 .photo-frame {
@@ -1003,6 +1020,7 @@ html.lightbox-open { overflow: hidden; }
 .drum-row:nth-child(odd) { --row-color: var(--accent); }
 .drum-row:nth-child(even) { --row-color: var(--accent-2); }
 .drum-row.is-melodic { --row-color: var(--accent-3); }
+.drum-row.is-melodic .drum-cell.on { color: #0e0f13; }  /* the green and lime are light, so the note names go dark */
 
 /* ---------- Footer ---------- */
 .footer {

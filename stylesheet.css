@@ -311,7 +311,6 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   display: block;
   position: relative;
   border-radius: 24px;
-  transform: rotate(2deg);
   transition: transform 0.4s cubic-bezier(.2, .8, .2, 1);
 }
 .photo-frame::before {
@@ -322,10 +321,9 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   border: 2px solid var(--accent);
   transform: translate(12px, 12px);
   z-index: -1;
-  transition: transform 0.4s cubic-bezier(.2, .8, .2, 1);
 }
-.photo-frame:hover { transform: rotate(0deg); }
-.photo-frame:hover::before { transform: translate(6px, 6px); }
+/* Stands straight and grows a little on hover */
+.photo-frame:hover { transform: scale(1.03); }
 .photo-frame img {
   display: block;
   width: 100%;

@@ -964,3 +964,24 @@ document.addEventListener('click', function (e) {
   });
   window.addEventListener('pagehide', send);
 })();
+
+// ---------- Award certificates ----------
+// A certificate link opens the image over the page instead of leaving it.
+// Without <dialog> support the link just opens the image.
+(function () {
+  var view = document.getElementById('cert-view');
+  if (!view || typeof view.showModal !== 'function') return;
+  var img = view.querySelector('img');
+  document.querySelectorAll('[data-cert]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;  // "open in new tab" still works
+      e.preventDefault();
+      img.src = a.getAttribute('href');
+      view.showModal();
+      var name = a.closest('.award-item');
+      name = name ? name.querySelector('.award-name').textContent + ' ' + name.querySelector('.award-org').textContent : 'award';
+      track('certificate/' + slug(name), 'Certificate: ' + name);
+    });
+  });
+  view.addEventListener('click', function () { view.close(); });
+})();

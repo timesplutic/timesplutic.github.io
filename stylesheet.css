@@ -311,7 +311,6 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   display: block;
   position: relative;
   border-radius: 24px;
-  transform: rotate(2deg);
   transition: transform 0.4s cubic-bezier(.2, .8, .2, 1);
 }
 .photo-frame::before {
@@ -322,10 +321,9 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   border: 2px solid var(--accent);
   transform: translate(12px, 12px);
   z-index: -1;
-  transition: transform 0.4s cubic-bezier(.2, .8, .2, 1);
 }
-.photo-frame:hover { transform: rotate(0deg); }
-.photo-frame:hover::before { transform: translate(6px, 6px); }
+/* Stands straight and grows a little on hover */
+.photo-frame:hover { transform: scale(1.03); }
 .photo-frame img {
   display: block;
   width: 100%;
@@ -899,6 +897,59 @@ html.lightbox-open { overflow: hidden; }
 
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 0; }
 
+/* ---------- Awards ---------- */
+.awards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.award-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.award-year { flex: none; font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
+.award-main { flex: 1; min-width: 0; }
+.award-main p { margin: 0; }
+.award-name { font-weight: 600; }
+.award-org { font-size: 14px; color: var(--text-muted); }
+.award-cert {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.award-cert:hover { color: var(--text); border-color: var(--accent); transform: translateY(-1px); }
+.award-cert svg { color: var(--accent); }
+
+/* The certificate opens over the page; a click anywhere closes it */
+.cert-view {
+  max-width: min(92vw, 900px);
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+  cursor: zoom-out;
+}
+.cert-view::backdrop { background: rgba(10, 10, 14, 0.84); }
+.cert-view img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(92vh - 32px);
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.cert-hint { margin: 10px 0 0; text-align: center; font: 12px var(--font-mono); color: rgba(255, 255, 255, 0.7); }
+
 /* ---------- Misc ---------- */
 .misc-grid {
   display: grid;
@@ -1212,6 +1263,8 @@ html.lightbox-open { overflow: hidden; }
   .nav-inner { padding: 12px 16px; }
   .nav-links a { padding: 6px 8px; font-size: 13px; }
   .section { padding: 48px 0; }
+  .award-item { flex-wrap: wrap; gap: 6px 14px; padding: 14px 16px; }
+  .award-cert { margin-left: auto; }
   .misc-grid { grid-template-columns: 1fr; }
   .misc-music { padding: 18px 16px; }
   .drum-bpm { order: 1; flex-basis: 100%; }

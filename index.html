@@ -9,6 +9,8 @@
   <meta name="author" content="Junhyeok Kim">
   <meta name="description" content="Plenty of Junhyeok Kims out there. This one is a Ph.D. student at Yonsei&#39;s MICV Lab, working on mechanistic interpretability, vision models, and cognitive science.">
   <link rel="canonical" href="https://timesplutic.github.io/">
+  <!-- Lets search engines show the profile photo as a large thumbnail -->
+  <meta name="robots" content="max-image-preview:large">
   <meta name="naver-site-verification" content="0eec68690cde93bf4f0ef9096af3816ec39e89e2">
 
   <!-- Link previews (KakaoTalk, Slack, X, etc.) -->
@@ -35,11 +37,28 @@
         "url": "https://timesplutic.github.io/"
       },
       {
+        "@type": "ProfilePage",
+        "url": "https://timesplutic.github.io/",
+        "name": "Junhyeok Kim",
+        "mainEntity": { "@id": "https://timesplutic.github.io/#person" },
+        "primaryImageOfPage": { "@id": "https://timesplutic.github.io/#photo" }
+      },
+      {
+        "@type": "ImageObject",
+        "@id": "https://timesplutic.github.io/#photo",
+        "url": "https://timesplutic.github.io/images/me.jpg",
+        "contentUrl": "https://timesplutic.github.io/images/me.jpg",
+        "width": 1102,
+        "height": 1469,
+        "caption": "Junhyeok Kim"
+      },
+      {
         "@type": "Person",
+        "@id": "https://timesplutic.github.io/#person",
         "name": "Junhyeok Kim",
         "alternateName": "김준혁",
         "url": "https://timesplutic.github.io/",
-        "image": "https://timesplutic.github.io/images/me.jpg",
+        "image": { "@id": "https://timesplutic.github.io/#photo" },
         "jobTitle": "Ph.D. Student",
         "affiliation": { "@type": "Organization", "name": "MICV Lab, Yonsei University", "url": "https://micv.yonsei.ac.kr/home" },
         "knowsAbout": ["Mechanistic interpretability", "Vision models", "Cognitive science"],
@@ -58,7 +77,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=63">
+  <link rel="stylesheet" href="stylesheet.css?v=64">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -136,7 +155,7 @@
 
         <div class="hero-photo reveal">
           <div class="photo-frame">
-            <img src="images/me.jpg" alt="Photo of Junhyeok Kim">
+            <img src="images/me.jpg" alt="Photo of Junhyeok Kim" width="1102" height="1469">
           </div>
         </div>
       </div>

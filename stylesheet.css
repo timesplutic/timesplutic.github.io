@@ -1130,7 +1130,7 @@ html.lightbox-open { overflow: hidden; }
 .gb-list li {
   display: grid;
   grid-template-columns: minmax(0, 130px) 1fr auto;
-  gap: 14px;
+  gap: 4px 14px;
   align-items: baseline;
   padding: 10px 4px;
   border-top: 1px solid var(--border);
@@ -1139,6 +1139,37 @@ html.lightbox-open { overflow: hidden; }
 .gb-list li.is-new { animation: gb-in 0.5s ease; }
 @keyframes gb-in { from { opacity: 0; transform: translateY(-6px); } }
 .gb-who { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gb-side { display: inline-flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+.gb-reply { grid-column: 2 / -1; margin: 0; font-size: 14px; color: var(--text-muted); overflow-wrap: anywhere; }
+.gb-reply b { color: var(--accent); font-weight: 600; }
+.gb-list li.is-leaving { opacity: 0.4; }
+/* Owner tools (only drawn in owner mode) */
+.gb-tool {
+  font: 600 11.5px var(--font-body);
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  cursor: pointer;
+}
+.gb-tool:hover { color: var(--text); border-color: var(--accent); }
+.gb-del:hover { color: #d64545; border-color: #d64545; }
+.gb-reply-form { grid-column: 2 / -1; display: flex; gap: 6px; }
+.gb-reply-form input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  outline: none;
+}
+.gb-reply-form input:focus { border-color: var(--accent); }
+.gb-owner { margin: 0 4px 8px; font: 12px var(--font-mono); color: var(--accent); }
 .gb-text { overflow-wrap: anywhere; }
 .gb-when { font: 11.5px var(--font-mono); color: var(--text-muted); white-space: nowrap; }
 .gb-empty { padding: 10px 4px; font-size: 14px; color: var(--text-muted); border-top: 1px solid var(--border); }
@@ -1338,6 +1369,7 @@ html.lightbox-open { overflow: hidden; }
   .gb-name { flex: 1 1 100%; }
   .gb-list li { grid-template-columns: 1fr auto; gap: 2px 10px; }
   .gb-text { grid-column: 1 / -1; grid-row: 2; }
+  .gb-reply, .gb-reply-form { grid-column: 1 / -1; }
   .misc-music { padding: 18px 16px; }
   .drum-bpm { order: 1; flex-basis: 100%; }
   .drum-row { grid-template-columns: 28px repeat(16, minmax(0, 1fr)); gap: 2px; }

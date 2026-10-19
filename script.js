@@ -1170,7 +1170,7 @@ document.addEventListener('click', function (e) {
       ownerBar();
       render();
       section.scrollIntoView();
-    }).catch(function () { ownerKey = null; window.alert('만약 너가 해킹을 시도하는 거라면, 그만둬.'); });
+    }).catch(function () { ownerKey = null; window.alert('If you’re trying to hack this, stop it.'); });
   }
 
   // ----- signing -----

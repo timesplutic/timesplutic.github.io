@@ -1028,6 +1028,10 @@ document.addEventListener('click', function (e) {
     return null;
   }
   var ownerKey = store('gb-key');
+  // Notes signed in this browser: id -> the secret token that lets it delete them
+  var mine = {};
+  try { mine = JSON.parse(store('gb-mine') || '{}') || {}; } catch (e) {}
+  function saveMine() { store('gb-mine', JSON.stringify(mine)); }
 
   function chars(s) { return Array.from(s).length; }
   function ago(iso) {
@@ -1079,6 +1083,13 @@ document.addEventListener('click', function (e) {
       xb.addEventListener('click', function () { remove(li, n); });
       side.appendChild(rb);
       side.appendChild(xb);
+    } else if (n.id && mine[n.id]) {
+      var wb = el('button', 'gb-tool gb-del', '\u2715');
+      wb.type = 'button';
+      wb.title = 'Delete my note';
+      wb.setAttribute('aria-label', 'Delete my note');
+      wb.addEventListener('click', function () { withdraw(li, n); });
+      side.appendChild(wb);
     }
     li.appendChild(side);
     if (n.reply) {
@@ -1129,6 +1140,26 @@ document.addEventListener('click', function (e) {
       status.textContent = "Couldn't load more notes right now.";
     }).then(function () { more.disabled = false; });
   });
+
+  // A writer deletes their own note. Deleting the latest one also lifts the
+  // wait before signing again.
+  function withdraw(li, n) {
+    if (!window.confirm('Delete your note?')) return;
+    li.classList.add('is-leaving');
+    post({ action: 'withdraw', id: n.id, token: mine[n.id] }).then(function (res) {
+      if (!res || !res.ok) throw new Error(res && res.error);
+      delete mine[n.id];
+      saveMine();
+      if (store('gb-last-id') === n.id) { store('gb-last', null); store('gb-last-id', null); }
+      notes = notes.filter(function (x) { return x !== n; });
+      li.remove();
+      if (!notes.length) render();
+      status.textContent = 'Your note was deleted.';
+    }).catch(function () {
+      li.classList.remove('is-leaving');
+      status.textContent = "Couldn't delete your note.";
+    });
+  }
 
   // ----- owner tools -----
   function openReply(li, n) {
@@ -1231,6 +1262,8 @@ document.addEventListener('click', function (e) {
     post({ name: who, message: text, website: form.elements.website.value }).then(function (res) {
       if (!res || !res.ok) throw new Error(res && res.error);
       store('gb-last', String(Date.now()));
+      store('gb-last-id', res.id || '');
+      if (res.id && res.token) { mine[res.id] = res.token; saveMine(); }
       var n = { id: res.id, name: who, message: text, reply: '', time: new Date().toISOString() };
       notes.unshift(n);
       var empty = list.querySelector('.gb-empty');

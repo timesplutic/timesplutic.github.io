@@ -417,6 +417,14 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 .t-fire      { --t0: #f2c2a4; --t1: #f6dccd; --t2: #fcf0e9; }
 .t-grass     { --t0: #b5dab9; --t1: #d5e8d6; --t2: #eef6ee; }
 .t-water     { --t0: #c4c7ce; --t1: #dfe1e5; --t2: #f2f3f5; }
+/* A paper in two fields runs from its first color (top left) to the second
+   (bottom right), so each filter's dot color shows up on its cards */
+.t2-lightning { --u0: #b5cdf0; --u1: #d6e4f5; }
+.paper[class*=" t2-"] .card-face {
+  background:
+    radial-gradient(120% 80% at 50% 40%, var(--t2) 0%, transparent 60%),
+    linear-gradient(135deg, var(--t0) 0%, var(--t1) 40%, var(--u1) 60%, var(--u0) 100%);
+}
 
 .card {
   position: relative;

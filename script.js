@@ -974,8 +974,9 @@ document.addEventListener('click', function (e) {
   window.addEventListener('pagehide', send);
 })();
 
-// ---------- Award certificates ----------
-// A certificate link opens the image over the page instead of leaving it.
+// ---------- Image view (certificates, photos) ----------
+// A link marked data-cert opens its image over the page instead of leaving
+// it: award certificates, and photos like the drumming one in Misc.
 // Without <dialog> support the link just opens the image.
 (function () {
   var view = document.getElementById('cert-view');
@@ -985,11 +986,16 @@ document.addEventListener('click', function (e) {
     a.addEventListener('click', function (e) {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;  // "open in new tab" still works
       e.preventDefault();
+      var award = a.closest('.award-item');
+      var name = award
+        ? award.querySelector('.award-name').textContent + ' ' + award.querySelector('.award-org').textContent
+        : a.getAttribute('data-cert') || a.textContent.trim();
       img.src = a.getAttribute('href');
+      img.alt = award ? 'Certificate: ' + name : name;
+      view.setAttribute('aria-label', img.alt);
       view.showModal();
-      var name = a.closest('.award-item');
-      name = name ? name.querySelector('.award-name').textContent + ' ' + name.querySelector('.award-org').textContent : 'award';
-      track('certificate/' + slug(name), 'Certificate: ' + name);
+      if (award) track('certificate/' + slug(name), 'Certificate: ' + name);
+      else track('photo/' + slug(name), 'Photo: ' + name);
     });
   });
   view.addEventListener('click', function () { view.close(); });

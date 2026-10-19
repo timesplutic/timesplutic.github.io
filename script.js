@@ -1020,7 +1020,7 @@ document.addEventListener('click', function (e) {
   var status = document.getElementById('gb-status');
   var msg = form.elements.message, name = form.elements.name, send = form.querySelector('.gb-send');
   var count = form.querySelector('.gb-count');
-  var MAX = 100, MAX_REPLY = 200, COOLDOWN = 60 * 1000, OWNER = 'Junhyeok';
+  var MAX = 100, MAX_REPLY = 200, COOLDOWN = 10 * 60 * 1000, OWNER = 'Junhyeok';
   var notes = [];
 
   function store(k, v) {
@@ -1170,7 +1170,7 @@ document.addEventListener('click', function (e) {
       ownerBar();
       render();
       section.scrollIntoView();
-    }).catch(function () { ownerKey = null; window.alert('That key did not work.'); });
+    }).catch(function () { ownerKey = null; window.alert('If you’re trying to hack this, stop it.'); });
   }
 
   // ----- signing -----
@@ -1190,7 +1190,12 @@ document.addEventListener('click', function (e) {
     if (chars(text) > MAX) { status.textContent = 'Please keep it under ' + MAX + ' characters.'; return; }
     if (/https?:\/\/|www\./i.test(text + ' ' + who)) { status.textContent = 'Links are not allowed, sorry!'; return; }
     var last = +store('gb-last') || 0;
-    if (!ownerKey && Date.now() - last < COOLDOWN) { status.textContent = 'Thanks! Please wait a minute before signing again.'; return; }
+    var wait = COOLDOWN - (Date.now() - last);
+    if (!ownerKey && wait > 0) {  // one note per 10 minutes from the same browser
+      var mins = Math.ceil(wait / 60000);
+      status.textContent = 'Thanks! You can sign again in ' + mins + (mins === 1 ? ' minute.' : ' minutes.');
+      return;
+    }
     send.disabled = true;
     status.textContent = 'Signing…';
     post({ name: who, message: text, website: form.elements.website.value }).then(function (res) {

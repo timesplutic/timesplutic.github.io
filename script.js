@@ -934,6 +934,15 @@ function paperTitle(paper) {
   });
 })();
 
+// ---------- External links open in a new tab ----------
+// Links to other sites (Scholar, LinkedIn, GitHub, papers, ...) open in a new
+// tab so the site stays open behind them
+document.querySelectorAll('a[href]').forEach(function (a) {
+  if (!/^https?:$/.test(a.protocol) || a.host === location.host) return;
+  a.target = '_blank';
+  a.rel = 'noopener';
+});
+
 // ---------- Outbound links ----------
 // Which links lead people off the site (Scholar, LinkedIn, GitHub, papers)
 document.addEventListener('click', function (e) {

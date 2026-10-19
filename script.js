@@ -1007,7 +1007,7 @@ document.addEventListener('click', function (e) {
 // The latest 10 visible notes are shown. Notes are always put on the page as
 // plain text, never as HTML.
 (function () {
-  var GUESTBOOK_URL = '';  // the Apps Script web app URL (…/exec)
+  var GUESTBOOK_URL = 'https://script.google.com/macros/s/AKfycbwgQBAEf1IQxL8XGiaobvp5CTgyEdQDkOlZsHQ_iTeKNywipNd7SJfToYFVKbx5zLCG/exec';  // the Apps Script web app URL (…/exec)
   var section = document.getElementById('guestbook');
   if (!section || !GUESTBOOK_URL) return;
   section.hidden = false;

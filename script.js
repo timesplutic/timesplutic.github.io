@@ -1000,3 +1000,103 @@ document.addEventListener('click', function (e) {
   });
   view.addEventListener('click', function () { view.close(); });
 })();
+
+// ---------- Guestbook ----------
+// Short notes kept in a Google Sheet through a small Apps Script web app,
+// which checks the length, drops links and keeps people from flooding it.
+// The latest 10 visible notes are shown. Notes are always put on the page as
+// plain text, never as HTML.
+(function () {
+  var GUESTBOOK_URL = 'https://script.google.com/macros/s/AKfycbwgQBAEf1IQxL8XGiaobvp5CTgyEdQDkOlZsHQ_iTeKNywipNd7SJfToYFVKbx5zLCG/exec';  // the Apps Script web app URL (…/exec)
+  var section = document.getElementById('guestbook');
+  if (!section || !GUESTBOOK_URL) return;
+  section.hidden = false;
+  var form = document.getElementById('gb-form');
+  var list = document.getElementById('gb-list');
+  var status = document.getElementById('gb-status');
+  var msg = form.elements.message, name = form.elements.name, send = form.querySelector('.gb-send');
+  var count = form.querySelector('.gb-count');
+  var MAX = 100, COOLDOWN = 60 * 1000;
+
+  function chars(s) { return Array.from(s).length; }
+  function ago(iso) {
+    var s = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (!(s >= 0)) return '';
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    if (s < 86400 * 30) return Math.floor(s / 86400) + 'd ago';
+    return new Date(iso).toISOString().slice(0, 10);
+  }
+  function row(n, fresh) {
+    var li = document.createElement('li');
+    if (fresh) li.className = 'is-new';
+    [['gb-who', n.name || 'Anonymous'], ['gb-text', n.message], ['gb-when', ago(n.time)]].forEach(function (c) {
+      var el = document.createElement('span');
+      el.className = c[0];
+      el.textContent = c[1];
+      li.appendChild(el);
+    });
+    return li;
+  }
+  function render(notes) {
+    list.textContent = '';
+    if (!notes.length) {
+      var li = document.createElement('li');
+      li.className = 'gb-empty';
+      li.textContent = 'No notes yet. Be the first!';
+      list.appendChild(li);
+      return;
+    }
+    notes.slice(0, 10).forEach(function (n) { list.appendChild(row(n)); });
+  }
+  function load() {
+    return fetch(GUESTBOOK_URL).then(function (r) { return r.json(); })
+      .then(function (notes) { render(Array.isArray(notes) ? notes : []); })
+      .catch(function () { status.textContent = "Couldn't load the notes right now."; });
+  }
+
+  function update() {
+    var n = chars(msg.value);
+    count.textContent = n + '/' + MAX;
+    count.classList.toggle('is-full', n >= MAX);
+  }
+  msg.addEventListener('input', update);
+  update();
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = msg.value.replace(/\s+/g, ' ').trim();
+    var who = name.value.replace(/\s+/g, ' ').trim();
+    if (!text) return;
+    if (chars(text) > MAX) { status.textContent = 'Please keep it under ' + MAX + ' characters.'; return; }
+    if (/https?:\/\/|www\./i.test(text + ' ' + who)) { status.textContent = 'Links are not allowed, sorry!'; return; }
+    var last = 0;
+    try { last = +localStorage.getItem('gb-last') || 0; } catch (err) {}
+    if (Date.now() - last < COOLDOWN) { status.textContent = 'Thanks! Please wait a minute before signing again.'; return; }
+    send.disabled = true;
+    status.textContent = 'Signing…';
+    fetch(GUESTBOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },  // a simple request, so no CORS preflight
+      body: JSON.stringify({ name: who, message: text, website: form.elements.website.value })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (!res || !res.ok) throw new Error(res && res.error);
+      try { localStorage.setItem('gb-last', String(Date.now())); } catch (err) {}
+      var empty = list.querySelector('.gb-empty');
+      if (empty) empty.remove();
+      list.insertBefore(row({ name: who, message: text, time: new Date().toISOString() }, true), list.firstChild);
+      while (list.children.length > 10) list.lastChild.remove();
+      msg.value = '';
+      update();
+      status.textContent = 'Thanks for signing!';
+      track('guestbook/sign', 'Guestbook: signed');
+    }).catch(function (err) {
+      status.textContent = err && err.message === 'busy'
+        ? 'Lots of notes right now. Please try again in a minute.'
+        : "Couldn't save your note. Please try again later.";
+    }).then(function () { send.disabled = false; });
+  });
+
+  load();
+})();

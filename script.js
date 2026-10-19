@@ -1006,6 +1006,10 @@ document.addEventListener('click', function (e) {
 // which checks the length, drops links and keeps people from flooding it.
 // The latest 10 visible notes are shown. Notes are always put on the page as
 // plain text, never as HTML.
+//
+// Owner mode: opening the page with #admin asks for the owner key once and
+// keeps it in this browser only. The Apps Script checks that key before any
+// reply or delete, so the buttons alone give nobody else any power.
 (function () {
   var GUESTBOOK_URL = 'https://script.google.com/macros/s/AKfycbwgQBAEf1IQxL8XGiaobvp5CTgyEdQDkOlZsHQ_iTeKNywipNd7SJfToYFVKbx5zLCG/exec';  // the Apps Script web app URL (…/exec)
   var section = document.getElementById('guestbook');
@@ -1016,7 +1020,14 @@ document.addEventListener('click', function (e) {
   var status = document.getElementById('gb-status');
   var msg = form.elements.message, name = form.elements.name, send = form.querySelector('.gb-send');
   var count = form.querySelector('.gb-count');
-  var MAX = 100, COOLDOWN = 60 * 1000;
+  var MAX = 100, MAX_REPLY = 200, COOLDOWN = 60 * 1000, OWNER = 'Junhyeok';
+  var notes = [];
+
+  function store(k, v) {
+    try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {}
+    return null;
+  }
+  var ownerKey = store('gb-key');
 
   function chars(s) { return Array.from(s).length; }
   function ago(iso) {
@@ -1028,34 +1039,141 @@ document.addEventListener('click', function (e) {
     if (s < 86400 * 30) return Math.floor(s / 86400) + 'd ago';
     return new Date(iso).toISOString().slice(0, 10);
   }
-  function row(n, fresh) {
-    var li = document.createElement('li');
-    if (fresh) li.className = 'is-new';
-    [['gb-who', n.name || 'Anonymous'], ['gb-text', n.message], ['gb-when', ago(n.time)]].forEach(function (c) {
-      var el = document.createElement('span');
-      el.className = c[0];
-      el.textContent = c[1];
-      li.appendChild(el);
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function post(body) {
+    return fetch(GUESTBOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },  // a simple request, so no CORS preflight
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json(); });
+  }
+  function owner(action, extra) {
+    var body = { action: action, key: ownerKey };
+    for (var k in extra) body[k] = extra[k];
+    return post(body).then(function (res) {
+      if (res && res.ok) return res;
+      if (res && (res.error === 'key' || res.error === 'locked')) logout();
+      throw new Error(res && res.error);
     });
+  }
+
+  function row(n, fresh) {
+    var li = el('li', fresh ? 'is-new' : '');
+    li.appendChild(el('span', 'gb-who', n.name || 'Anonymous'));
+    li.appendChild(el('span', 'gb-text', n.message));
+    var side = el('span', 'gb-side');
+    side.appendChild(el('span', 'gb-when', ago(n.time)));
+    if (ownerKey && n.id) {
+      var rb = el('button', 'gb-tool', n.reply ? 'Edit reply' : 'Reply');
+      rb.type = 'button';
+      rb.addEventListener('click', function () { openReply(li, n); });
+      var xb = el('button', 'gb-tool gb-del', '✕');
+      xb.type = 'button';
+      xb.title = 'Delete';
+      xb.setAttribute('aria-label', 'Delete this note');
+      xb.addEventListener('click', function () { remove(li, n); });
+      side.appendChild(rb);
+      side.appendChild(xb);
+    }
+    li.appendChild(side);
+    if (n.reply) {
+      var rp = el('p', 'gb-reply');
+      rp.appendChild(el('b', '', '↳ ' + OWNER));
+      rp.appendChild(document.createTextNode(' ' + n.reply));
+      li.appendChild(rp);
+    }
     return li;
   }
-  function render(notes) {
+  function render() {
     list.textContent = '';
-    if (!notes.length) {
-      var li = document.createElement('li');
-      li.className = 'gb-empty';
-      li.textContent = 'No notes yet. Be the first!';
-      list.appendChild(li);
-      return;
-    }
+    if (!notes.length) { list.appendChild(el('li', 'gb-empty', 'No notes yet. Be the first!')); return; }
     notes.slice(0, 10).forEach(function (n) { list.appendChild(row(n)); });
   }
   function load() {
     return fetch(GUESTBOOK_URL).then(function (r) { return r.json(); })
-      .then(function (notes) { render(Array.isArray(notes) ? notes : []); })
+      .then(function (data) { notes = Array.isArray(data) ? data : []; render(); })
       .catch(function () { status.textContent = "Couldn't load the notes right now."; });
   }
 
+  // ----- owner tools -----
+  function openReply(li, n) {
+    if (li.querySelector('.gb-reply-form')) return;
+    var f = el('form', 'gb-reply-form');
+    var input = el('input');
+    input.type = 'text';
+    input.maxLength = MAX_REPLY;
+    input.value = n.reply || '';
+    input.placeholder = 'Reply as ' + OWNER + ' (empty removes it)';
+    var save = el('button', 'gb-tool', 'Save');
+    var cancel = el('button', 'gb-tool', 'Cancel');
+    cancel.type = 'button';
+    cancel.addEventListener('click', function () { f.remove(); });
+    f.appendChild(input); f.appendChild(save); f.appendChild(cancel);
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = input.value.replace(/\s+/g, ' ').trim();
+      save.disabled = true;
+      owner('reply', { id: n.id, reply: text }).then(function () {
+        n.reply = text;
+        li.replaceWith(row(n));
+      }).catch(function () {
+        save.disabled = false;
+        status.textContent = "Couldn't save the reply.";
+      });
+    });
+    li.appendChild(f);
+    input.focus();
+  }
+  function remove(li, n) {
+    li.classList.add('is-leaving');
+    owner('delete', { id: n.id }).then(function () {
+      notes = notes.filter(function (x) { return x !== n; });
+      li.remove();
+      if (!notes.length) render();
+    }).catch(function () {
+      li.classList.remove('is-leaving');
+      status.textContent = "Couldn't delete the note.";
+    });
+  }
+  function ownerBar() {
+    var bar = document.getElementById('gb-owner');
+    if (!ownerKey) { if (bar) bar.remove(); return; }
+    if (bar) return;
+    bar = el('p', 'gb-owner');
+    bar.id = 'gb-owner';
+    bar.appendChild(document.createTextNode('Owner mode · '));
+    var out = el('button', 'gb-tool', 'Log out');
+    out.type = 'button';
+    out.addEventListener('click', logout);
+    bar.appendChild(out);
+    section.querySelector('.guestbook').insertBefore(bar, list);
+  }
+  function logout() {
+    ownerKey = null;
+    store('gb-key', null);
+    ownerBar();
+    render();
+  }
+  function login() {
+    if (location.hash !== '#admin') return;
+    history.replaceState(null, '', location.pathname + location.search);  // the key prompt only shows once
+    var key = window.prompt('Owner key');
+    if (!key) return;
+    ownerKey = key;
+    owner('check').then(function () {
+      store('gb-key', key);
+      ownerBar();
+      render();
+      section.scrollIntoView();
+    }).catch(function () { ownerKey = null; window.alert('That key did not work.'); });
+  }
+
+  // ----- signing -----
   function update() {
     var n = chars(msg.value);
     count.textContent = n + '/' + MAX;
@@ -1071,21 +1189,18 @@ document.addEventListener('click', function (e) {
     if (!text) return;
     if (chars(text) > MAX) { status.textContent = 'Please keep it under ' + MAX + ' characters.'; return; }
     if (/https?:\/\/|www\./i.test(text + ' ' + who)) { status.textContent = 'Links are not allowed, sorry!'; return; }
-    var last = 0;
-    try { last = +localStorage.getItem('gb-last') || 0; } catch (err) {}
-    if (Date.now() - last < COOLDOWN) { status.textContent = 'Thanks! Please wait a minute before signing again.'; return; }
+    var last = +store('gb-last') || 0;
+    if (!ownerKey && Date.now() - last < COOLDOWN) { status.textContent = 'Thanks! Please wait a minute before signing again.'; return; }
     send.disabled = true;
     status.textContent = 'Signing…';
-    fetch(GUESTBOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },  // a simple request, so no CORS preflight
-      body: JSON.stringify({ name: who, message: text, website: form.elements.website.value })
-    }).then(function (r) { return r.json(); }).then(function (res) {
+    post({ name: who, message: text, website: form.elements.website.value }).then(function (res) {
       if (!res || !res.ok) throw new Error(res && res.error);
-      try { localStorage.setItem('gb-last', String(Date.now())); } catch (err) {}
+      store('gb-last', String(Date.now()));
+      var n = { id: res.id, name: who, message: text, reply: '', time: new Date().toISOString() };
+      notes.unshift(n);
       var empty = list.querySelector('.gb-empty');
       if (empty) empty.remove();
-      list.insertBefore(row({ name: who, message: text, time: new Date().toISOString() }, true), list.firstChild);
+      list.insertBefore(row(n, true), list.firstChild);
       while (list.children.length > 10) list.lastChild.remove();
       msg.value = '';
       update();
@@ -1098,5 +1213,7 @@ document.addEventListener('click', function (e) {
     }).then(function () { send.disabled = false; });
   });
 
-  load();
+  ownerBar();
+  load().then(login);
+  window.addEventListener('hashchange', login);
 })();

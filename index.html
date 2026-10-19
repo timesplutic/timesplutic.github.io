@@ -77,7 +77,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=64">
+  <link rel="stylesheet" href="stylesheet.css?v=65">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -444,6 +444,29 @@
       </div>
     </section>
 
+    <!-- Guestbook -->
+    <section class="section" id="guestbook" hidden>
+      <div class="section-head reveal">
+        <span class="section-index">04</span>
+        <h2>Guestbook</h2>
+      </div>
+
+      <div class="guestbook reveal">
+        <form class="gb-form" id="gb-form" autocomplete="off">
+          <input class="gb-name" name="name" type="text" maxlength="20" placeholder="Name (optional)" aria-label="Name (optional)">
+          <div class="gb-msg-wrap">
+            <input class="gb-msg" name="message" type="text" maxlength="100" placeholder="Leave a short note (100 characters)" aria-label="Message" required>
+            <span class="gb-count" aria-hidden="true">0/100</span>
+          </div>
+          <!-- left empty by people, filled in by spam bots -->
+          <input class="gb-trap" name="website" type="text" tabindex="-1" aria-hidden="true">
+          <button class="gb-send" type="submit">Sign</button>
+        </form>
+        <p class="gb-status" id="gb-status" aria-live="polite"></p>
+        <ol class="gb-list" id="gb-list" aria-label="Latest notes"></ol>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer">
@@ -455,7 +478,7 @@
     <p class="cert-hint">click anywhere or press Esc to close</p>
   </dialog>
 
-  <script src="script.js?v=41"></script>
+  <script src="script.js?v=42"></script>
   <!-- Private visit stats (GoatCounter): no cookies, nothing shown on the page -->
   <script data-goatcounter="https://timesplutic.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

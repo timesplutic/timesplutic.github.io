@@ -1092,13 +1092,43 @@ document.addEventListener('click', function (e) {
   function render() {
     list.textContent = '';
     if (!notes.length) { list.appendChild(el('li', 'gb-empty', 'No notes yet. Be the first!')); return; }
-    notes.slice(0, 10).forEach(function (n) { list.appendChild(row(n)); });
+    notes.forEach(function (n) { list.appendChild(row(n)); });
+  }
+
+  // Notes come PAGE at a time, newest first. One extra is asked for, to know
+  // whether there are older ones behind; "Show more" then loads the next page.
+  var PAGE = 10;
+  var more = el('button', 'gb-more', 'Show more');
+  more.type = 'button';
+  more.hidden = true;
+  list.after(more);
+  function fetchPage(offset) {
+    return fetch(GUESTBOOK_URL + '?offset=' + offset + '&limit=' + (PAGE + 1))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        data = Array.isArray(data) ? data : [];
+        var seen = {};
+        notes.forEach(function (n) { if (n.id) seen[n.id] = true; });
+        var fresh = data.slice(0, PAGE).filter(function (n) { return !n.id || !seen[n.id]; });
+        more.hidden = data.length <= PAGE || !fresh.length;
+        return fresh;
+      });
   }
   function load() {
-    return fetch(GUESTBOOK_URL).then(function (r) { return r.json(); })
-      .then(function (data) { notes = Array.isArray(data) ? data : []; render(); })
+    return fetchPage(0).then(function (fresh) { notes = fresh; render(); })
       .catch(function () { status.textContent = "Couldn't load the notes right now."; });
   }
+  more.addEventListener('click', function () {
+    more.disabled = true;
+    fetchPage(notes.length).then(function (fresh) {
+      var empty = list.querySelector('.gb-empty');
+      if (empty) empty.remove();
+      fresh.forEach(function (n) { notes.push(n); list.appendChild(row(n, true)); });
+      track('guestbook/more', 'Guestbook: show more');
+    }).catch(function () {
+      status.textContent = "Couldn't load more notes right now.";
+    }).then(function () { more.disabled = false; });
+  });
 
   // ----- owner tools -----
   function openReply(li, n) {
@@ -1206,7 +1236,6 @@ document.addEventListener('click', function (e) {
       var empty = list.querySelector('.gb-empty');
       if (empty) empty.remove();
       list.insertBefore(row(n, true), list.firstChild);
-      while (list.children.length > 10) list.lastChild.remove();
       msg.value = '';
       update();
       status.textContent = 'Thanks for signing!';

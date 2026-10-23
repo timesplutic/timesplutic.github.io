@@ -898,6 +898,14 @@ html.lightbox-open { overflow: hidden; }
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 0; }
 
 /* ---------- Awards ---------- */
+.award-group {
+  margin: 0 0 10px;
+  font: 500 12px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.awards + .award-group { margin-top: 28px; }
 .awards { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .award-item {
   display: flex;

@@ -1282,6 +1282,12 @@ html.lightbox-open { overflow: hidden; }
   .footer { padding: 24px 16px 40px; }
 }
 
+/* Looping animations wait while their element is off screen (see script.js) */
+.is-offscreen,
+.is-offscreen *,
+.is-offscreen *::before,
+.is-offscreen *::after { animation-play-state: paused !important; }
+
 /* Reduced motion: stop looping animations and scroll-in effects, but keep the
    small hover fades so cards still respond smoothly */
 @media (prefers-reduced-motion: reduce) {

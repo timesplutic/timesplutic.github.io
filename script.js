@@ -180,21 +180,35 @@ function paperTitle(paper) {
   });
   hero.addEventListener('pointerleave', function () { pointerActive = false; });
 
-  // Idle drift: a few "heads" wandering around when the cursor is away
+  // Idle drift: a few "heads" wandering around when the cursor is away.
+  // It only runs while the grid is on screen and the tab is in view, and
+  // starts again when either comes back.
   var t0 = performance.now();
+  var running = false, onScreen = true;
   function idle(now) {
+    if (!onScreen || document.hidden) { running = false; return; }
     if (!pointerActive) {
       var rect = grid.getBoundingClientRect();
-      if (rect.bottom > 0 && rect.top < window.innerHeight) {
-        var t = (now - t0) / 1000;
-        var cx = rect.left + rect.width * (0.65 + 0.22 * Math.sin(t * 0.35));
-        var cy = rect.top + rect.height * (0.4 + 0.25 * Math.sin(t * 0.5 + 1.3));
-        paint(cx, cy, 130);
-      }
+      var t = (now - t0) / 1000;
+      var cx = rect.left + rect.width * (0.65 + 0.22 * Math.sin(t * 0.35));
+      var cy = rect.top + rect.height * (0.4 + 0.25 * Math.sin(t * 0.5 + 1.3));
+      paint(cx, cy, 130);
     }
     setTimeout(function () { requestAnimationFrame(idle); }, 80);
   }
-  requestAnimationFrame(idle);
+  function wake() {
+    if (running || !onScreen || document.hidden) return;
+    running = true;
+    requestAnimationFrame(idle);
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      onScreen = entries[entries.length - 1].isIntersecting;
+      wake();
+    }).observe(grid);
+  }
+  document.addEventListener('visibilitychange', wake);
+  wake();
 })();
 
 // ---------- Mini drum machine ----------
@@ -678,7 +692,7 @@ function paperTitle(paper) {
     busy = true;
     src = paper;
     clone = paper.cloneNode(true);
-    clone.classList.remove('reveal', 'in');
+    clone.classList.remove('reveal', 'in', 'is-offscreen');
     clone.querySelectorAll('.card-hint').forEach(function (el) { el.remove(); });
     clone.querySelectorAll('[tabindex]').forEach(function (el) {
       el.removeAttribute('tabindex');
@@ -1001,3 +1015,13 @@ document.addEventListener('click', function (e) {
   view.addEventListener('click', function () { view.close(); });
 })();
 
+// ---------- Pause what is off screen ----------
+// The looping foil on first-author cards and the spinning dot on the filter
+// chip stop while they are well out of view, and pick up when scrolled back.
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { e.target.classList.toggle('is-offscreen', !e.isIntersecting); });
+  }, { rootMargin: '200px 0px' });
+  document.querySelectorAll('.paper-featured, .filters').forEach(function (el) { io.observe(el); });
+})();

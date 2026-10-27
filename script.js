@@ -10,6 +10,11 @@
 // dashboard. They go to a separate site (timesplutic-events), so the visitor
 // stats of the main site only count real visits. Skipped in browsers where
 // counting was turned off with #toggle-goatcounter, and on local copies.
+// Hero background previews: ?bg=sparse or ?bg=static swaps the attention
+// grid for a candidate design, so it can be tried on the live site
+var BG_PREVIEW = (/[?&]bg=(sparse|static)(?:&|$)/.exec(location.search) || [])[1];
+if (BG_PREVIEW) document.documentElement.setAttribute('data-bg', BG_PREVIEW);
+
 var EVENTS_URL = 'https://timesplutic-events.goatcounter.com/count';
 function track(path, title) {
   try { if (localStorage.getItem('skipgc') === 't') return; } catch (e) {}
@@ -101,7 +106,7 @@ function paperTitle(paper) {
 
   // ---------- Attention-map grid ----------
   var grid = document.getElementById('attn-grid');
-  if (!grid) return;
+  if (!grid || BG_PREVIEW) return;
 
   var cells = [];
   var cols = 0, rows = 0;
@@ -206,6 +211,123 @@ function paperTitle(paper) {
       onScreen = entries[entries.length - 1].isIntersecting;
       wake();
     }).observe(grid);
+  }
+  document.addEventListener('visibilitychange', wake);
+  wake();
+})();
+
+// ---------- Hero background previews ----------
+(function () {
+  if (!BG_PREVIEW) return;
+  var hero = document.querySelector('.hero');
+  if (!hero) return;
+
+  if (BG_PREVIEW === 'static') {
+    var glow = document.createElement('div');
+    glow.className = 'bg-static';
+    glow.setAttribute('aria-hidden', 'true');
+    hero.insertBefore(glow, hero.firstChild);
+    return;
+  }
+
+  // Sparse features: a lattice of dots that mostly stay off. A few fire at
+  // random, and more fire around the cursor.
+  var cv = document.createElement('canvas');
+  cv.className = 'bg-canvas';
+  cv.setAttribute('aria-hidden', 'true');
+  hero.insertBefore(cv, hero.firstChild);
+  var ctx = cv.getContext('2d');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var VIRIDIS = [[68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
+                 [39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37]];
+  function viridis(a) {
+    var t = a * (VIRIDIS.length - 1), i = Math.min(VIRIDIS.length - 2, Math.floor(t)), f = t - i;
+    var c0 = VIRIDIS[i], c1 = VIRIDIS[i + 1];
+    return [c0[0] + (c1[0] - c0[0]) * f, c0[1] + (c1[1] - c0[1]) * f, c0[2] + (c1[2] - c0[2]) * f];
+  }
+  function rgba(c, a) { return 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a.toFixed(3) + ')'; }
+
+  var W = 0, H = 0, S = 18, perRow = 0, dots = [];
+  function build() {
+    var r = cv.getBoundingClientRect();
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = W < 600 ? 16 : 18;
+    perRow = Math.ceil((W - S / 2) / S);
+    dots = [];
+    for (var y = S / 2; y < H; y += S) for (var x = S / 2; x < W; x += S) dots.push({ x: x, y: y, a: 0, v: 0 });
+  }
+
+  var mx = 0, my = 0, pointer = false;
+  hero.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var r = cv.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top; pointer = true;
+  });
+  hero.addEventListener('pointerleave', function () { pointer = false; });
+
+  function draw(dt) {
+    var cell = getComputedStyle(document.documentElement).getPropertyValue('--cell').split(',').map(Number);
+    var decay = Math.exp(-dt / 0.7);
+    var fire = 6 * dt * dots.length / 400;
+    for (var n = 0; n < fire; n++) {
+      var d = dots[(Math.random() * dots.length) | 0];
+      d.a = Math.max(d.a, 0.5 + 0.5 * Math.random()); d.v = Math.random();
+    }
+    if (pointer) {
+      for (var m = 0; m < 3; m++) {
+        var ang = Math.random() * 6.283, rad = Math.random() * 70;
+        var ci = Math.round((mx + Math.cos(ang) * rad - S / 2) / S);
+        var ri = Math.round((my + Math.sin(ang) * rad - S / 2) / S);
+        var hit = ci >= 0 && ci < perRow && dots[ri * perRow + ci];
+        if (hit) { hit.a = 1; hit.v = 0.55 + 0.45 * Math.random(); }
+      }
+    }
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < dots.length; i++) {
+      var k = dots[i];
+      k.a *= decay;
+      if (k.a > 0.03) {
+        ctx.beginPath(); ctx.arc(k.x, k.y, 1.6 + 2.2 * k.a, 0, 6.283);
+        ctx.fillStyle = rgba(viridis(k.v), 0.25 + 0.7 * k.a); ctx.fill();
+      } else {
+        ctx.fillStyle = rgba(cell, 0.14);
+        ctx.fillRect(k.x - 1, k.y - 1, 2, 2);
+      }
+    }
+  }
+
+  build();
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { build(); draw(0); }, 150);
+  });
+  draw(0);
+  if (reduceMotion) return;
+
+  // Runs only while the hero is on screen and the tab is in view
+  var running = false, onScreen = true, last = 0;
+  function loop(now) {
+    if (!onScreen || document.hidden) { running = false; return; }
+    draw(Math.min(0.05, (now - last) / 1000));
+    last = now;
+    requestAnimationFrame(loop);
+  }
+  function wake() {
+    if (running || !onScreen || document.hidden) return;
+    running = true;
+    last = performance.now();
+    requestAnimationFrame(loop);
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      onScreen = entries[entries.length - 1].isIntersecting;
+      wake();
+    }).observe(cv);
   }
   document.addEventListener('visibilitychange', wake);
   wake();

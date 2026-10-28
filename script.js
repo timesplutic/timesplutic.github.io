@@ -463,17 +463,53 @@ function paperTitle(paper) {
   });
 })();
 
+// ---------- Light position ----------
+// The foil and glare light glides toward the cursor instead of jumping to it,
+// so nothing snaps when the cursor enters a card. x and y run from 0 to 1.
+var glide = (function () {
+  var moving = [], raf = null;
+  function step() {
+    raf = null;
+    moving = moving.filter(function (el) {
+      var s = el._light;
+      s.x += (s.tx - s.x) * 0.15;
+      s.y += (s.ty - s.y) * 0.15;
+      var done = Math.abs(s.tx - s.x) < 0.002 && Math.abs(s.ty - s.y) < 0.002;
+      if (done) { s.x = s.tx; s.y = s.ty; }
+      el.style.setProperty('--gx', (s.x * 100).toFixed(1) + '%');
+      el.style.setProperty('--gy', (s.y * 100).toFixed(1) + '%');
+      return !done;
+    });
+    if (moving.length) raf = requestAnimationFrame(step);
+  }
+  return function (el, x, y) {
+    if (!el._light) {
+      // Start where the light was left (an enlarged copy keeps it), or at the center
+      var sx = parseFloat(el.style.getPropertyValue('--gx')), sy = parseFloat(el.style.getPropertyValue('--gy'));
+      el._light = { x: isNaN(sx) ? 0.5 : sx / 100, y: isNaN(sy) ? 0.5 : sy / 100 };
+    }
+    // Kept inside the element so the foil never runs off its edge
+    el._light.tx = Math.max(0, Math.min(1, x));
+    el._light.ty = Math.max(0, Math.min(1, y));
+    if (moving.indexOf(el) < 0) moving.push(el);
+    if (!raf) raf = requestAnimationFrame(step);
+  };
+})();
+
 // ---------- Paper card tilt ----------
 // Each paper card turns toward the cursor like a physical trading card, and
 // eases back when the cursor leaves. Mouse only, so touch scrolling never triggers it.
 (function () {
   var MAX = 12; // degrees
-  // Light position as a percentage, kept inside the element so the foil never runs off its edge
-  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
   document.querySelectorAll('.paper').forEach(function (paper) {
     var card = paper.querySelector('.card');
     var fig = paper.querySelector('.paper-fig');
     if (!card) return;
+    // First-author cards get a second foil layer that follows the cursor
+    var face = card.querySelector('.card-face');
+    if (face && paper.classList.contains('paper-featured')) {
+      face.insertAdjacentHTML('afterbegin', '<div class="face-foil" aria-hidden="true"></div>');
+    }
     var raf = null, ev = null;
 
     function update() {
@@ -483,12 +519,10 @@ function paperTitle(paper) {
       var y = Math.max(0, Math.min(1, (ev.clientY - c.top) / c.height));
       card.style.setProperty('--ry', ((x - 0.5) * 2 * MAX).toFixed(2) + 'deg');
       card.style.setProperty('--rx', ((0.5 - y) * 2 * MAX).toFixed(2) + 'deg');
-      card.style.setProperty('--gx', pct(x));
-      card.style.setProperty('--gy', pct(y));
+      glide(card, x, y);
       if (fig) {
         var r = fig.getBoundingClientRect();
-        fig.style.setProperty('--gx', pct((ev.clientX - r.left) / r.width));
-        fig.style.setProperty('--gy', pct((ev.clientY - r.top) / r.height));
+        glide(fig, (ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height);
       }
     }
 
@@ -521,7 +555,6 @@ function paperTitle(paper) {
   var EASE = 'cubic-bezier(.2, .8, .2, 1)';
   var MAX = 16; // degrees, finger drag
   var MAX_MOUSE = 12;
-  var pct = function (v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1) + '%'; };
 
   var view = document.createElement('div');
   view.className = 'card-view';
@@ -543,6 +576,7 @@ function paperTitle(paper) {
     var back = document.createElement('div');
     back.className = 'card-back';
     back.innerHTML =
+      '<div class="back-foil" aria-hidden="true"></div>' +
       '<div class="back-patches"></div>' +
       '<p class="back-title">Paper Collection</p>' +
       '<div class="back-plate">' +
@@ -657,13 +691,11 @@ function paperTitle(paper) {
     card.classList.add('is-tilting');
     card.style.setProperty('--ry', ((x - 0.5) * 2 * max).toFixed(2) + 'deg');
     card.style.setProperty('--rx', ((0.5 - y) * 2 * max).toFixed(2) + 'deg');
-    card.style.setProperty('--gx', pct(x));
-    card.style.setProperty('--gy', pct(y));
+    glide(card, x, y);
     if (fig) {
       var f = fig.getBoundingClientRect();
       fig.classList.add('is-tilting');
-      fig.style.setProperty('--gx', pct((e.clientX - f.left) / f.width));
-      fig.style.setProperty('--gy', pct((e.clientY - f.top) / f.height));
+      glide(fig, (e.clientX - f.left) / f.width, (e.clientY - f.top) / f.height);
     }
   }
   view.addEventListener('pointermove', function (e) {

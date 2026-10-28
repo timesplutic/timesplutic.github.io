@@ -468,27 +468,14 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   background: radial-gradient(120% 80% at 50% 40%, var(--t2) 0%, var(--t1) 55%, var(--t0) 100%);
   box-shadow: inset 0 0 0 0.5cqw rgba(255, 255, 255, 0.55), 0 0 0 0.3cqw rgba(60, 62, 70, 0.35);
 }
-/* Faint foil over the whole face of a first-author card */
+/* First-author cards have two foil layers on the face. At rest the foil
+   drifts and a light sheen sweeps across it now and then, so the card glints
+   before it is touched. While the card tilts, that layer fades out and a
+   second one that follows the cursor fades in, so the switch never snaps. */
 .paper-featured .card-face::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg,
-    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
-    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
-  background-size: 400% 400%;
-  background-position: var(--gx, 50%) var(--gy, 50%);
-  mix-blend-mode: soft-light;
-  opacity: 0.2;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-/* While the card tilts, the foil follows the cursor at the same strength as
-   the resting glint, so it never looks weaker when the card is held */
-.paper-featured .card.is-tilting .card-face::before { mix-blend-mode: hard-light; opacity: 0.7; }
-/* At rest the foil keeps drifting and a light sheen sweeps across it now and
-   then, so first-author cards glint even before they are touched */
-.paper-featured .card:not(.is-tilting) .card-face::before {
   background:
     linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%),
     linear-gradient(115deg,
@@ -498,7 +485,26 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   mix-blend-mode: hard-light;
   opacity: 0.7;
   animation: foil-glint 7s ease-in-out infinite;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
 }
+.paper-featured .card.is-tilting .card-face::before { opacity: 0; animation-play-state: paused; }
+.face-foil,
+.back-foil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg,
+    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
+    #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
+  background-size: 400% 400%;
+  background-position: var(--gx, 50%) var(--gy, 50%);
+  mix-blend-mode: hard-light;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.paper-featured .card.is-tilting .face-foil { opacity: 0.7; }
+.paper-featured .card.is-tilting .back-foil { opacity: 0.35; }
 /* The foil drifts out and back so the loop ends where it starts. The sheen
    sweeps once early on, then waits off the card (its jump back at the loop
    point happens out of sight) */
@@ -733,14 +739,15 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
       #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff, #c46bff,
       #ff5fa2, #ffa64d, #ffe94d, #5ff08a, #4dd2ff, #6f8cff);
   background-size: 300% 100%, 400% 400%;
-  background-position: -30% 0, var(--gx, 50%) var(--gy, 50%);
   mix-blend-mode: hard-light;
   opacity: 0.35;
+  animation: foil-glint 7s ease-in-out infinite;
+  transition: opacity 0.5s ease;
   pointer-events: none;
 }
-.paper-featured .card:not(.is-tilting) .card-back::before { animation: foil-glint 7s ease-in-out infinite; }
+.paper-featured .card.is-tilting .card-back::before { opacity: 0; }
 /* and the holo strip on the plate flows on its own */
-.paper-featured .card:not(.is-tilting) .back-plate::before { animation: strip-flow 4s ease-in-out infinite alternate; }
+.paper-featured .back-plate::before { animation: strip-flow 4s ease-in-out infinite alternate; }
 /* and the name on the plate turns to holo foil, like the star on the front */
 .paper-featured .back-name {
   background: linear-gradient(110deg, #ff9ec7, #ffd36b, #a8f5b8, #8fe3ff, #c3a8ff, #ff9ec7, #ffd36b, #a8f5b8);
@@ -750,7 +757,11 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   background-clip: text;
   color: transparent;
 }
-.paper-featured .card:not(.is-tilting) .back-name { animation: name-foil 6s ease-in-out infinite alternate; }
+.paper-featured .back-name { animation: name-foil 6s ease-in-out infinite alternate; }
+/* Held still while the card tilts, so they pause where they are instead of jumping */
+.paper-featured .card.is-tilting .card-back::before,
+.paper-featured .card.is-tilting .back-plate::before,
+.paper-featured .card.is-tilting .back-name { animation-play-state: paused; }
 @keyframes name-foil {
   from { background-position: 0% 0; }
   to   { background-position: 100% 0; }

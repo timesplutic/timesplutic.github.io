@@ -489,8 +489,9 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   pointer-events: none;
 }
 .paper-featured .card.is-tilting .card-face::before { opacity: 0; animation-play-state: paused; }
-.face-foil,
-.back-foil {
+/* Two classes, so .card-face > * below cannot pull it back into the layout */
+.card .face-foil,
+.card .back-foil {
   position: absolute;
   inset: 0;
   background: linear-gradient(115deg,

@@ -747,8 +747,6 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   pointer-events: none;
 }
 .paper-featured .card.is-tilting .card-back::before { opacity: 0; }
-/* and the holo strip on the plate flows on its own */
-.paper-featured .back-plate::before { animation: strip-flow 4s ease-in-out infinite alternate; }
 /* and the name on the plate turns to holo foil, like the star on the front */
 .paper-featured .back-name {
   background: linear-gradient(110deg, #ff9ec7, #ffd36b, #a8f5b8, #8fe3ff, #c3a8ff, #ff9ec7, #ffd36b, #a8f5b8);
@@ -758,19 +756,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
   background-clip: text;
   color: transparent;
 }
-.paper-featured .back-name { animation: name-foil 6s ease-in-out infinite alternate; }
-/* Held still while the card tilts, so they pause where they are instead of jumping */
-.paper-featured .card.is-tilting .card-back::before,
-.paper-featured .card.is-tilting .back-plate::before,
-.paper-featured .card.is-tilting .back-name { animation-play-state: paused; }
-@keyframes name-foil {
-  from { background-position: 0% 0; }
-  to   { background-position: 100% 0; }
-}
-@keyframes strip-flow {
-  from { background-position: 0 0%; }
-  to   { background-position: 0 100%; }
-}
+.paper-featured .card.is-tilting .card-back::before { animation-play-state: paused; }
 .back-title,
 .back-lab {
   position: absolute;

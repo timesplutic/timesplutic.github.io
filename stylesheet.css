@@ -957,37 +957,12 @@ html.lightbox-open { overflow: hidden; }
 .cert-hint { margin: 10px 0 0; text-align: center; font: 12px var(--font-mono); color: rgba(255, 255, 255, 0.7); }
 
 /* ---------- Misc ---------- */
-.misc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.misc-card {
-  padding: 22px;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.misc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.misc-card p { margin: 8px 0 0; }
-.misc-emoji { font-size: 28px; line-height: 1; }
-
-.misc-music {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(200px, 260px) 1fr;
-  gap: 32px;
-  align-items: center;
-}
-.music-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
-.music-list .year {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--accent);
-  margin-right: 10px;
-}
-.misc-card p.drum-note { font-size: 13.5px; margin-top: 14px; }
+/* One line per item, in the same rows as Awards, with an emoji in place of the year */
+.misc-emoji { flex: none; width: 24px; font-size: 20px; line-height: 1; text-align: center; }
+p.award-main { margin: 0; }
+.misc-drum { align-items: flex-start; }
+.misc-drum .misc-emoji { margin-top: 2px; }
+.misc-list p.drum-note { margin: 0 0 14px; font-size: 13.5px; }
 
 /* ---------- Drum machine ---------- */
 .drum { min-width: 0; }
@@ -1101,20 +1076,22 @@ html.lightbox-open { overflow: hidden; }
 .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .js .reveal.in { opacity: 1; transform: none; }
 /* Keep the hover fade on cards: .js .reveal would otherwise override their transition */
-.js .paper.reveal,
-.js .misc-card.reveal {
+.js .paper.reveal {
   transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.2, .8, .2, 1), box-shadow 0.6s ease;
 }
 
 /* ---------- Album shelf (topster, inline) ---------- */
-.music-list a.is-active { color: var(--accent); }
+.misc-list a.is-active { color: var(--accent); }
+/* Opens right under the music line that was clicked. Closed, its negative
+   margin cancels the list gap, so it takes no room at all. */
 .shelf {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.5s cubic-bezier(.2, .8, .2, 1);
+  margin-top: -12px;
+  padding: 0 20px;
+  transition: grid-template-rows 0.5s cubic-bezier(.2, .8, .2, 1), margin-top 0.5s cubic-bezier(.2, .8, .2, 1);
 }
-.shelf.is-open { grid-template-rows: 1fr; }
+.shelf.is-open { grid-template-rows: 1fr; margin-top: 0; }
 .shelf-inner { min-height: 0; overflow: hidden; }
 .shelf.is-open .shelf-inner { overflow: visible; }
 .shelf-head {
@@ -1193,9 +1170,6 @@ html.lightbox-open { overflow: hidden; }
 
 @media (max-width: 820px) {
   .shelf-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  /* Stacked: albums open right under the links, above the drum machine */
-  .misc-music .shelf { order: 1; }
-  .misc-music .drum { order: 2; }
 }
 
 /* ---------- In-progress cards ----------
@@ -1256,7 +1230,6 @@ html.lightbox-open { overflow: hidden; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 820px) {
-  .misc-music { grid-template-columns: 1fr; gap: 20px; }
   /* One column: the photo sits on top, so the glow moves up behind it */
   .bg-static {
     inset: -24px -24px 0;
@@ -1266,7 +1239,6 @@ html.lightbox-open { overflow: hidden; }
     mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 45%, transparent 80%);
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 45%, transparent 80%);
   }
-  .misc-grid { grid-template-columns: repeat(2, 1fr); }
   .hero { padding-top: 40px; }
   .hero-inner { grid-template-columns: 1fr; gap: 32px; }
   .hero-photo { order: -1; max-width: 160px; }
@@ -1279,8 +1251,8 @@ html.lightbox-open { overflow: hidden; }
   .section { padding: 48px 0; }
   .award-item { flex-wrap: wrap; gap: 6px 14px; padding: 14px 16px; }
   .award-cert { margin-left: auto; }
-  .misc-grid { grid-template-columns: 1fr; }
-  .misc-music { padding: 18px 16px; }
+  .shelf { padding: 0 4px; }
+  .misc-list .award-item { flex-wrap: nowrap; }
   .drum-bpm { order: 1; flex-basis: 100%; }
   .drum-row { grid-template-columns: 28px repeat(16, minmax(0, 1fr)); gap: 2px; }
   .drum-label { font-size: 10px; }

@@ -77,7 +77,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css?v=76">
+  <link rel="stylesheet" href="stylesheet.css?v=78">
 
   <!-- Apply the saved theme before first paint to avoid a flash -->
   <script>
@@ -416,48 +416,54 @@
         <h2>Miscellaneous</h2>
       </div>
 
-      <div class="misc-grid">
-        <div class="misc-card reveal">
-          <span class="misc-emoji">🧪</span>
-          <p>I am currently the <a href="https://micv.yonsei.ac.kr/members">student leader</a> of the MICV lab!</p>
-        </div>
-        <div class="misc-card reveal">
-          <span class="misc-emoji">👯</span>
-          <p><strong>Need another Junhyeok Kim? <a href="https://junhyeok.kim/">He</a>'s just one click away!</strong>
+      <ul class="awards misc-list">
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">🧪</span>
+          <p class="award-main">I am currently the <a href="https://micv.yonsei.ac.kr/members">student leader</a> of the MICV lab!</p>
+        </li>
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">👯</span>
+          <p class="award-main"><strong>Need another Junhyeok Kim? <a href="https://junhyeok.kim/">He</a>'s just one click away!</strong>
             <span class="muted">(He is my mate as well as my namesake.)</span></p>
-        </div>
-        <div class="misc-card reveal">
-          <span class="misc-emoji">🥁</span>
-          <p>I'm <a href="images/misc/me_in_miccai_band.jpg" data-cert="Drumming at the MICCAI 2025 Gala Dinner">the drummer</a> at the <a href="https://conferences.miccai.org/2025/en/">MICCAI 2025</a> Gala Dinner!</p>
-        </div>
-        <div class="misc-card misc-music reveal">
-          <div class="music-intro">
-            <span class="misc-emoji">🎧</span>
-            <ul class="music-list">
-              <li><span class="year">2023</span> I love <a href="images/misc/topster_2023.png">music</a>.</li>
-              <li><span class="year">2024</span> I really love <a href="images/misc/topster_2024.png">music</a>.</li>
-              <li><span class="year">2025</span> I <em>am</em> <a href="images/misc/topster_2025.png">music</a>.</li>
-            </ul>
+        </li>
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">🥁</span>
+          <p class="award-main">I'm <a href="images/misc/me_in_miccai_band.jpg" data-cert="Drumming at the MICCAI 2025 Gala Dinner">the drummer</a> at the <a href="https://conferences.miccai.org/2025/en/">MICCAI 2025</a> Gala Dinner!</p>
+        </li>
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">🎧</span>
+          <p class="award-main">I love <a href="images/misc/topster_2023.png">music</a>. (2023)</p>
+        </li>
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">🎧</span>
+          <p class="award-main">I really love <a href="images/misc/topster_2024.png">music</a>. (2024)</p>
+        </li>
+        <li class="award-item reveal">
+          <span class="misc-emoji" aria-hidden="true">🎧</span>
+          <p class="award-main">I <em>am</em> <a href="images/misc/topster_2025.png">music</a>. (2025)</p>
+        </li>
+        <li class="award-item misc-drum reveal">
+          <span class="misc-emoji" aria-hidden="true">🎛️</span>
+          <div class="award-main">
             <p class="muted drum-note">Since I'm a drummer, here's a tiny drum machine. Click the cells to make a beat, then hit play. Tap an instrument name to hear it. Bass cells change note each time you click.</p>
-          </div>
-
-          <div class="drum" id="drum">
-            <div class="drum-controls">
-              <button class="drum-play" id="drum-play" aria-label="Play">
-                <svg class="i-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
-                <svg class="i-stop" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-              </button>
-              <label class="drum-bpm">
-                <span class="drum-bpm-val"><span id="drum-bpm-out">90</span> BPM</span>
-                <input type="range" id="drum-bpm" min="60" max="180" value="90" aria-label="Tempo">
-              </label>
-              <button class="drum-btn" id="drum-random">Shuffle</button>
-              <button class="drum-btn" id="drum-clear">Clear</button>
+            <div class="drum" id="drum">
+              <div class="drum-controls">
+                <button class="drum-play" id="drum-play" aria-label="Play">
+                  <svg class="i-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>
+                  <svg class="i-stop" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                </button>
+                <label class="drum-bpm">
+                  <span class="drum-bpm-val"><span id="drum-bpm-out">90</span> BPM</span>
+                  <input type="range" id="drum-bpm" min="60" max="180" value="90" aria-label="Tempo">
+                </label>
+                <button class="drum-btn" id="drum-random">Shuffle</button>
+                <button class="drum-btn" id="drum-clear">Clear</button>
+              </div>
+              <div class="drum-grid" id="drum-grid" role="grid" aria-label="Drum sequencer"></div>
             </div>
-            <div class="drum-grid" id="drum-grid" role="grid" aria-label="Drum sequencer"></div>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
     </section>
 
   </main>
@@ -471,7 +477,7 @@
     <p class="cert-hint">click anywhere or press Esc to close</p>
   </dialog>
 
-  <script src="script.js?v=53"></script>
+  <script src="script.js?v=54"></script>
   <!-- Private visit stats (GoatCounter): no cookies, nothing shown on the page -->
   <script data-goatcounter="https://timesplutic.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>

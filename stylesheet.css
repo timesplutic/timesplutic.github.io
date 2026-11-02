@@ -959,12 +959,6 @@ html.lightbox-open { overflow: hidden; }
 /* ---------- Misc ---------- */
 /* One line per item, in the same rows as Awards, with an emoji in place of the year */
 .misc-emoji { flex: none; width: 24px; font-size: 20px; line-height: 1; text-align: center; }
-.misc-list .year {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--accent);
-  margin-right: 10px;
-}
 p.award-main { margin: 0; }
 .misc-drum { align-items: flex-start; }
 .misc-drum .misc-emoji { margin-top: 2px; }

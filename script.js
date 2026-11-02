@@ -744,23 +744,21 @@ var glide = (function () {
 })();
 
 // ---------- Album shelf ----------
-// Each "music" link opens that year's albums right inside the music card.
+// Each "music" link opens that year's albums right under its line.
 // Hovering (or tapping) a sleeve peeks its record out and names the album.
 (function () {
-  var links = document.querySelectorAll('.music-list a[href*="topster_"]');
-  var card = document.querySelector('.misc-music');
-  if (!links.length || !card) return;
+  var links = document.querySelectorAll('.misc-list a[href*="topster_"]');
+  if (!links.length) return;
   var BASE = 'images/misc/topster/';
   var data = null, year = null, closeTimer = null;
 
-  var shelf = document.createElement('div');
+  var shelf = document.createElement('li');
   shelf.className = 'shelf';
   shelf.innerHTML =
     '<div class="shelf-inner"><div class="shelf-head">' +
       '<span class="shelf-now" aria-live="polite"></span>' +
       '<button class="shelf-close">close \u2715</button>' +
     '</div><div class="shelf-grid"></div></div>';
-  card.appendChild(shelf);
   var grid = shelf.querySelector('.shelf-grid'), now = shelf.querySelector('.shelf-now');
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -789,9 +787,15 @@ var glide = (function () {
     });
   }
 
-  function open(y) {
+  function open(y, row) {
     clearTimeout(closeTimer);
     track('music/' + y, 'Albums: ' + y);
+    if (shelf.previousElementSibling !== row) {
+      // Moving under another line: start closed there, then open
+      shelf.classList.remove('is-open');
+      row.after(shelf);
+      void shelf.offsetHeight;
+    }
     render(y);
     shelf.classList.add('is-open');
   }
@@ -811,7 +815,7 @@ var glide = (function () {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;  // "open in new tab" still gets the PNG
       e.preventDefault();
       if (year === m[1]) { close(); return; }
-      var go = function () { open(m[1]); };
+      var go = function () { open(m[1], a.closest('li')); };
       if (data) return go();
       fetch(BASE + 'albums.json').then(function (r) { return r.json(); })
         .then(function (j) { data = j; go(); })
